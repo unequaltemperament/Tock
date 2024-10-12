@@ -4,3 +4,6 @@ tockQueueMockup.psd
 src/splash
 src/Tock.ino
 .DS_Store
+include/README
+lib/README
+test/README
