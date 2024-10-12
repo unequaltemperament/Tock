@@ -1,0 +1,6 @@
+.pio
+.vscode/
+tockQueueMockup.psd
+src/splash
+src/Tock.ino
+.DS_Store
