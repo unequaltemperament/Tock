@@ -58,19 +58,17 @@ TockTimer currentTimer;
 cppQueue timerQueue(sizeof(TockTimer), QUEUE_SIZE_ITEMS);
 
 //storage variables for tft.getTextBounds()
-int16_t xTB, yTB;
-uint16_t wTB, hTB;
+int xTB, yTB;
+unsigned int wTB, hTB;
 
-unsigned long currentMillis;
-unsigned long previousMillis;
-unsigned long startedAt = 0;
-
-const int sensorInterval = 50;
-uint32_t previousSensorMillis = 0;
+unsigned long currentMillis = 0,
+              previousMillis = 0,
+              previousSensorMillis = 0,
+              startedAt = 0;
 
 
-bool isRunning = false;
-bool dirty = true;
+bool isRunning = false,
+     dirty = true;
 
 char timeInputBuffer[5];
 int timeInputBufferIndex = 0;
@@ -83,16 +81,6 @@ TockTimer generateTockTimer(TimerStatus status = WORK, long initialTimeInSeconds
   //BAD NEWS BEARZ
   progressBar.lightIntervalInMs = (newTimer.initialTimeInMS / NUM_LEDS) / progressBar.partialSteps;
   return newTimer;
-}
-
-bool timeInputBufferIsEmpty() {
-  int s = sizeof(timeInputBuffer) / sizeof(timeInputBuffer[0]);
-  for (int i = 0; i < s; i++) {
-    if (timeInputBuffer[i] > 0) {
-      return false;
-    }
-  }
-  return true;
 }
 
 uint8_t touchMap(uint8_t i) {
@@ -142,7 +130,7 @@ void getSensorInput() {
   uint8_t touched;
 
   touched = cap.touched();
-  if (currentMillis - previousSensorMillis >= sensorInterval) {
+  if (currentMillis - previousSensorMillis >= sensorIntervalInMS) {
 
     previousSensorMillis = currentMillis;
 
@@ -161,7 +149,7 @@ void getSensorInput() {
   }
 }
 
-// //this breaks after a single dequeue, I bet
+//this breaks after a single dequeue, I bet
 int iterateNextInQueue(TockTimer* res) {
   static int idx = 0;
 
@@ -169,7 +157,7 @@ int iterateNextInQueue(TockTimer* res) {
   int result = timerQueue.peekIdx(res, idx);
   idx++;
   idx *= result;
-  if (!result) dirty = false;
+  dirty = static_cast<bool>(result);
   return result;
 }
 
@@ -302,8 +290,6 @@ static const byte splashImageData[1492] PROGMEM = {
   0x8E, 0x1E, 0xFF, 0x00, 0x01
 };
 
-
-//TODO: RENAME THIS!!!!!
 unsigned int getNextChunk(byte numBytes = 2)
 {
   static int idx = 0;
@@ -325,42 +311,6 @@ unsigned int getNextChunk(byte numBytes = 2)
   return ret;
 }
 
-void drawHighPixel(unsigned int colorByte, Bitmap& bmp) {
-
-  //get just the high 4 bits & move them to the low 4 bits for 565'ing
-  unsigned int highPixel = (colorByte & 0x00FF) >> 4;
-
-  if (highPixel != 0x0F) {
-    //RGB565
-    highPixel = (highPixel << 1 | highPixel >> 3) << 11 | (highPixel << 2 | highPixel >> 2) << 5 | (highPixel << 1 | highPixel >> 3);
-
-    // debug("highPixel: ");
-    // debugln(highPixel, HEX);
-
-    tft.drawPixel(bmp.x, bmp.y, highPixel);
-  }
-
-  bmp.advanceCursor();
-}
-
-void drawLowPixel(unsigned int colorByte, Bitmap& bmp) {
-
-  //get just the low 4 bits
-  unsigned int lowPixel = colorByte & 0x000F;
-
-  if (lowPixel != 0x0F) {
-    //RGB565
-    lowPixel = (lowPixel << 1 | lowPixel >> 3) << 11 | (lowPixel << 2 | lowPixel >> 2) << 5 | (lowPixel << 1 | lowPixel >> 3);
-
-    // debug("lowPixel: ");
-    // debugln(lowPixel, HEX);
-
-    tft.drawPixel(bmp.x, bmp.y, lowPixel);
-  }
-
-  bmp.advanceCursor();
-}
-
 void drawSplash()
 {
 
@@ -368,11 +318,12 @@ void drawSplash()
   // but current BMP compressed encoding
   // doesn't include image size
   // width = 106, height = 40
-  Bitmap cursor = {106, 40, 0, 0};
+  //also ugh now with the screen dependency
+  Bitmap bmp = {106, 40, 0, 0, tft};
   unsigned int scanPad;
   bool done = false;
 
-  cursor.advanceCursorToImageStart(tft.width(), tft.height());
+  bmp.advanceCursorToImageStart(tft.width(), tft.height());
   long now = millis();
 
   while (!done)
@@ -386,22 +337,22 @@ void drawSplash()
         // escape values
         switch (chunkLowByte)
         {
-        // EOL, go to start of next line
-        case 0:
-          cursor.x = tft.width() / 2 - cursor.width / 2;
-          cursor.y++;
-          break;
-        // EOF
-        case 1:
-          done = true;
-          break;
-        // Delta, following two bytes are horizontal & vertical
-        // offsets to next pixel relative to current position
-        case 2:
-          scanPad = getNextChunk();
-          cursor.x += scanPad >> 8;
-          cursor.y += chunkLowByte;
-          break;
+          // EOL, go to start of next line
+          case 0:
+            bmp.cursorX = tft.width() / 2 - bmp.width / 2;
+            bmp.cursorY++;
+            break;
+          // EOF
+          case 1:
+            done = true;
+            break;
+          // Delta, following two bytes are horizontal & vertical
+          // offsets to next pixel relative to current position
+          case 2:
+            scanPad = getNextChunk();
+            bmp.cursorX += scanPad >> 8;
+            bmp.cursorY += chunkLowByte;
+            break;
         }
       }
       else
@@ -412,8 +363,8 @@ void drawSplash()
         for (int j = 0; j < numIndexes; j += 2)
         {
           scanPad = getNextChunk(1);
-          drawHighPixel(scanPad, cursor);
-          drawLowPixel(scanPad, cursor);
+          bmp.drawHighPixel(scanPad);
+          bmp.drawLowPixel(scanPad);
         }
         // adjust for word boundary alignment by chewing up padding byte
         if (numIndexes % 4 > 1)
@@ -433,14 +384,14 @@ void drawSplash()
 
       while (drawIndex < repeatLength)
       {
-        drawHighPixel(scanPad, cursor);
+        bmp.drawHighPixel(scanPad);
         drawIndex++;
         // odd number of pixels, bail early
         if (drawIndex == repeatLength)
         {
           continue;
         }
-        drawLowPixel(scanPad, cursor);
+        bmp.drawLowPixel(scanPad);
         drawIndex++;
       }
     }
