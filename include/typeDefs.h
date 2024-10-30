@@ -143,7 +143,7 @@ struct Bitmap
     cursorY = canvasHeight / 2 - height / 2;
   }
 
-  //TODO: Can probably accelerate this with some of the drawLine functions
+  // TODO: Can probably accelerate this with some of the drawLine functions
   void drawPixel(unsigned int color)
   {
 
