@@ -95,12 +95,6 @@ enum TimerStatus
 #undef DEFAULT
 #define DEFAULT DEFAULT
 
-enum class TestTFT
-{
-  DEFAULT,
-  DISABLE
-};
-
 char statusType[][8] = {"expired", "working", "break"};
 
 long TimerColor[] = {0xFF0000, 0xD9FF00, 0x2AE600};
@@ -126,52 +120,5 @@ struct Bitmap
   int height;
   int cursorX;
   int cursorY;
-  Adafruit_ST7789 &tft;
-
-  void advanceCursor(int numPixelsDrawn = 1)
-  {
-    // BMP format doesn't wrap pixels around boundaries, so we can skip that check
-    // all line advancement should be handled when we hit a 0x00 0x00 in the scan pad
-    // so I thiiiiiiink this really only ever needs to advance x
-    cursorX += numPixelsDrawn;
-  }
-
-  // this assumes drawing image at canvas center
-  void advanceCursorToImageStart(int canvasWidth, int canvasHeight)
-  {
-    cursorX = canvasWidth / 2 - width / 2;
-    cursorY = canvasHeight / 2 - height / 2;
-  }
-
-  // TODO: Can probably accelerate this with some of the drawLine functions
-  void drawPixel(unsigned int color)
-  {
-
-    // TODO: bg color checking
-    if (color != 0x0F)
-    {
-      // RGB565
-      color = (color << 1 | color >> 3) << 11 | (color << 2 | color >> 2) << 5 | (color << 1 | color >> 3);
-
-      tft.drawPixel(cursorX, cursorY, color);
-    }
-
-    advanceCursor();
-  }
-
-  void drawHighPixel(unsigned int colorByte)
-  {
-    // get just the high bits & move them to the low 4 bits for 565'ing
-    // always sits in the high 4 bits of the low byte
-    unsigned int color = (colorByte & 0x00FF) >> 4;
-    drawPixel(color);
-  }
-
-  void drawLowPixel(unsigned int colorByte)
-  {
-    // get just the low 4 bits of the low byte
-    unsigned int color = colorByte & 0x000F;
-    drawPixel(color);
-  }
 };
 #endif

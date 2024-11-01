@@ -1,7 +1,7 @@
-#include "HardwareSerial.h"
+
 #ifndef PROGRESS_HEADER
 #define PROGRESS_HEADER
-
+#include "HardwareSerial.h"
 #include <Adafruit_NeoPixel.h>
 
 struct TockTimer;
@@ -74,11 +74,10 @@ private:
 
   // TODO: keep working on this....
   // needs a gamma map or something?
-  // green overwhelms when all there colors are scaled equally
+  // green overwhelms when all three colors are scaled equally
   uint32_t getDimmedColor(uint32_t color, float dimPercentage)
   {
-    uint32_t dimmedcolor = 0;
-
+   
     uint32_t r = (color >> 16 & 0xFF);
     uint32_t g = (color >> 8 & 0xFF);
     uint32_t b = (color & 0xFF);
@@ -87,9 +86,8 @@ private:
     g = (uint32_t)g * dimPercentage;
     b = (uint32_t)b * dimPercentage;
 
-    dimmedcolor = (r << 16) | (g << 8) | b;
+    return (r << 16) | (g << 8) | b;
 
-    return dimmedcolor;
   }
 };
 

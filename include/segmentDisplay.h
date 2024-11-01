@@ -26,7 +26,6 @@ public:
     progressBar = bar;
   }
 
-  // NOTE: this is not flexible if we have a number of digits other than 5
   void formatOutputText(unsigned long b)
   {
     // Serial.print("format: ");
