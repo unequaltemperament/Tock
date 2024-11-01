@@ -1,6 +1,8 @@
 #ifndef TYPES_HEADER
 #define TYPES_HEADER
 
+#include "debugSettings.h"
+
 const unsigned long oneSecondInMS = 1000,
                     sensorIntervalInMS = 50;
 

@@ -1,5 +1,5 @@
-#define DEBUG 1
 
+#include "debugSettings.h"
 #include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -12,18 +12,8 @@
 #include "segmentDisplay.h"
 #include "screen.h"
 
-
-
 // #define TOCK_UNO
 #define TOCK_EVERY
-
-#if DEBUG
-#define debug(...) Serial.print(__VA_ARGS__)
-#define debugln(...) Serial.println(__VA_ARGS__)
-#else
-#define debug(x)
-#define debugln(...)
-#endif
 
 // nano every
 #ifdef TOCK_EVERY

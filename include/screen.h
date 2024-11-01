@@ -1,6 +1,7 @@
 #ifndef SCREEN_HEADER
 #define SCREEN_HEADER
 
+#include "debugSettings.h"
 #include <Adafruit_ST7789.h>
 #include "typeDefs.h"
 

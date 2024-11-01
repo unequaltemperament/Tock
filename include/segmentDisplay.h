@@ -1,3 +1,7 @@
+#ifndef SEGMENT_HEADER
+#define SEGMENT_HEADER
+
+#include "debugSettings.h"
 #include "Arduino.h"
 #include "HardwareSerial.h"
 #include "cppQueue.h"
@@ -120,3 +124,5 @@ public:
 //       return numToRound + multiple - remainder;
 //   }
 };
+
+#endif
