@@ -2,12 +2,8 @@
 #include "debugSettings.h"
 #include <Arduino.h>
 #include <Wire.h>
-#include <SPI.h>
-#include <Adafruit_GFX.h>
 #include <Adafruit_CAP1188.h>
-#include <RGBDigitV2.h>
 #include <cppQueue.h>
-#include "typeDefs.h"
 #include "progressBar.h"
 #include "segmentDisplay.h"
 #include "screen.h"
@@ -65,10 +61,6 @@ unsigned long currentMillis,
               startedAt = 0;
 
 bool isRunning = false;
-
-char timeInputBuffer[5];
-
-int timeInputBufferIndex = 0;
 
 TockTimer generateTockTimer(TimerStatus status = WORK, long initialTimeInSeconds = 3600)
 {

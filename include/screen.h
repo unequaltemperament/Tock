@@ -2,6 +2,7 @@
 #define SCREEN_HEADER
 
 #include "debugSettings.h"
+#include <Adafruit_GFX.h>
 #include <Adafruit_ST7789.h>
 #include "typeDefs.h"
 
@@ -150,14 +151,14 @@ public:
     boolean enabled = true;
     int8_t LITE_PIN;
     // storage variables for getTextBounds()
-    int16_t xTB, yTB;
-    uint16_t wTB, hTB;
+    int16_t xTB, yTB = 0;
+    uint16_t wTB = Adafruit_GFX::width();
+    uint16_t hTB = Adafruit_GFX::height();
 
     // TODO: hardcoded is sad
     // but current BMP compressed encoding
     // doesn't include image size
     // width = 106, height = 40, cursor inital position x=0,y=0
-    // also ugh now with the screen dependency
     Bitmap bmp = {106, 40, 0, 0};
 
     void enable()
@@ -176,7 +177,7 @@ public:
     {
         unsigned int scanPad;
         bool done = false;
-        advanceCursorToImageStart(width(), height());
+        setCursorForCenteredImageDraw(width(), height());
 
 #if DEBUG
         long now = millis();
@@ -374,8 +375,7 @@ private:
         bmp.cursorX += numPixelsDrawn;
     }
 
-    // this assumes drawing image at canvas center
-    void advanceCursorToImageStart(int canvasWidth, int canvasHeight)
+    void setCursorForCenteredImageDraw(int canvasWidth, int canvasHeight)
     {
         bmp.cursorX = canvasWidth / 2 - bmp.width / 2;
         bmp.cursorY = canvasHeight / 2 - bmp.height / 2;

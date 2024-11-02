@@ -1,6 +1,8 @@
 #ifndef DEBUGSETTINGS_HEADER
 #define DEBUGSETTINGS_HEADER
 
+#include "HardwareSerial.h"
+
 #define DEBUG 1
 
 #if DEBUG

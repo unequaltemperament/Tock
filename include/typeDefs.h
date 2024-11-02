@@ -92,12 +92,7 @@ enum TimerStatus
   BREAK
 };
 
-// DEFAULT exists as a macro in Arduino.h
-// so we steal it for the duration of this file
-#undef DEFAULT
-#define DEFAULT DEFAULT
-
-char statusType[][8] = {"expired", "working", "break"};
+char statusType[][8] = {"expired", " work", "break"};
 
 long TimerColor[] = {0xFF0000, 0xD9FF00, 0x2AE600};
 

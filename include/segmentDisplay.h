@@ -3,7 +3,6 @@
 
 #include "debugSettings.h"
 #include "Arduino.h"
-#include "HardwareSerial.h"
 #include "cppQueue.h"
 #include <RGBDigitV2.h>
 #include "typeDefs.h"

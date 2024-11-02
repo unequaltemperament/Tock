@@ -2,8 +2,8 @@
 #define PROGRESS_HEADER
 
 #include "debugSettings.h"
-#include "HardwareSerial.h"
 #include <Adafruit_NeoPixel.h>
+#include "typeDefs.h"
 
 struct TockTimer;
 
@@ -33,6 +33,7 @@ public:
       {
         updatedAt = currentMillis;
       }
+      //TODO: get rid of this modff
       float fullLEDsInt;
       float partial = modff(((float)currentTimer->remainingTimeInMS * _num_leds / currentTimer->initialTimeInMS), &fullLEDsInt);
       fullLEDsInt = _num_leds - fullLEDsInt;
