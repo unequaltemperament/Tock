@@ -11,23 +11,24 @@ class ProgressBar : public Adafruit_NeoPixel
 {
 
 public:
-  ProgressBar(int num_leds, int led_pin)
-      : Adafruit_NeoPixel(num_leds, led_pin, NEO_GRB)
+  ProgressBar(int num_leds, int led_pin, TockTimer timer)
+      : Adafruit_NeoPixel(num_leds, led_pin, NEO_GRB),currentTimer(timer)
   {
     _num_leds = num_leds;
+    //currentTimer = timer
   };
 
   int _num_leds;
   unsigned long updatedAt = 0;
   unsigned long lightIntervalInMs = 0;
   const int partialSteps = 64;
-  TockTimer *currentTimer = NULL;
+  TockTimer &currentTimer;
 
   void update(bool forceUpdate = false)
   {
     const unsigned long currentMillis = millis();
 
-    if ((currentMillis - updatedAt >= lightIntervalInMs && currentTimer->remainingTimeInMS > 0) || forceUpdate)
+    if ((currentMillis - updatedAt >= lightIntervalInMs && currentTimer.remainingTimeInMS > 0) || forceUpdate)
     {
       if (!forceUpdate)
       {
@@ -35,15 +36,15 @@ public:
       }
       //TODO: get rid of this modff
       float fullLEDsInt;
-      float partial = modff(((float)currentTimer->remainingTimeInMS * _num_leds / currentTimer->initialTimeInMS), &fullLEDsInt);
+      float partial = modff(((float)currentTimer.remainingTimeInMS * _num_leds / currentTimer.initialTimeInMS), &fullLEDsInt);
       fullLEDsInt = _num_leds - fullLEDsInt;
       for (int i = 0; i < (int)fullLEDsInt; i++)
       {
-        setPixelColor(getMappedLED(i), TimerColor[currentTimer->status]);
+        setPixelColor(getMappedLED(i), TimerColor[currentTimer.status]);
       }
       if ((int)fullLEDsInt < _num_leds && partial > 0)
       {
-        setPixelColor(getMappedLED((int)fullLEDsInt), getDimmedColor(TimerColor[currentTimer->status], 1 - partial));
+        setPixelColor(getMappedLED((int)fullLEDsInt), getDimmedColor(TimerColor[currentTimer.status], 1 - partial));
       }
       show();
     }

@@ -1,4 +1,3 @@
-
 #include "debugSettings.h"
 #include <Arduino.h>
 #include <Wire.h>
@@ -41,26 +40,26 @@
 
 #endif
 
-Screen tft(TFT_CS, TFT_DC, TFT_RST, TFT_LITE);
-
-#define NUM_LEDS 36
-ProgressBar progressBar(NUM_LEDS, LED_PIN);
-
-#define NUM_DIGITS 5
-SegmentDisplay segmentDisplay(NUM_DIGITS, DIGITS_PIN, &progressBar);
-
-#define QUEUE_SIZE_ITEMS 10
-
-Adafruit_CAP1188 cap = Adafruit_CAP1188(CAP_RST);
-
-TockTimer currentTimer;
-
-cppQueue timerQueue(sizeof(TockTimer), QUEUE_SIZE_ITEMS);
-
 unsigned long currentMillis,
               startedAt = 0;
 
 bool isRunning = false;
+
+TockTimer currentTimer;
+
+Screen tft(TFT_CS, TFT_DC, TFT_RST, TFT_LITE);
+
+#define NUM_LEDS 36
+ProgressBar progressBar(NUM_LEDS, LED_PIN, currentTimer);
+
+#define QUEUE_SIZE_ITEMS 10
+
+cppQueue timerQueue(sizeof(TockTimer), QUEUE_SIZE_ITEMS);
+
+#define NUM_DIGITS 5
+SegmentDisplay segmentDisplay(NUM_DIGITS, DIGITS_PIN, &progressBar, currentTimer, timerQueue);
+
+Adafruit_CAP1188 cap = Adafruit_CAP1188(CAP_RST);
 
 TockTimer generateTockTimer(TimerStatus status = WORK, long initialTimeInSeconds = 3600)
 {
@@ -90,23 +89,25 @@ void initSensors()
   delay(15);
   debugln("Setting up CAP1188...");
   bool capSensorDetected = cap.begin();
-  byte capSensorRetrys = 0;
 
-  while (!capSensorDetected && capSensorRetrys < 3)
+
+  while (!capSensorDetected)
   {
-    capSensorRetrys++;
-    debug("CAP1188 not found, retrying (attempt ");
-    debug(capSensorRetrys);
-    debugln("/3)");
-    capSensorDetected = cap.begin();
-  }
-  if (!capSensorDetected)
-  {
+    static byte capSensorRetrys = 0;
+    if (capSensorRetrys < 3)
+    {
+      capSensorRetrys++;
+      debug("CAP1188 not found, retrying (attempt ");
+      debug(capSensorRetrys);
+      debugln("/3)");
+      capSensorDetected = cap.begin();
+      continue;
+    }
     debugln("--------------------");
     debug("CAP1188 not found, aborting program");
     while (1);
   }
-  // Wire.setWireTimeout();
+
   debugln("CAP1188 found!");
 
   debug("repeat rate enable: ");
@@ -198,11 +199,8 @@ void setup()
   // TODO: updating current timer needs to update/notify segmentDisplay and progressBar
   timerQueue.pop(&currentTimer);
 
-  segmentDisplay.queue = &timerQueue;
-  segmentDisplay.currentTimer = &currentTimer;
-  progressBar.currentTimer = &currentTimer;
-
   isRunning = true;
+  startedAt = millis();
   currentMillis = millis();
 
   segmentDisplay.updatedAt = currentMillis;
@@ -210,7 +208,6 @@ void setup()
   segmentDisplay.forceUpdate();
   progressBar.forceUpdate();
 
-  startedAt = millis();
   debug(millis());
   debugln(": End of setup, entering loop");
 }

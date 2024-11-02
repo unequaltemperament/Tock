@@ -16,17 +16,19 @@ public:
   int _numDigits;
   unsigned long updatedAt = 0;
   const unsigned long expireBlinkIntervalInMs = 420;
-  TockTimer *currentTimer = NULL;
-  cppQueue *queue = NULL;
+  TockTimer &currentTimer;
+  cppQueue &_queue;
   ProgressBar *progressBar = NULL;
 
   char digitStringBuffer[6] = {};
 
-  SegmentDisplay(int numDigits, int digitsPin, ProgressBar *bar)
-      : RGBDigit(numDigits, digitsPin)
+  SegmentDisplay(int numDigits, int digitsPin, ProgressBar *bar, TockTimer &timer, cppQueue &queue)
+      : RGBDigit(numDigits, digitsPin), _queue(queue), currentTimer(timer)
   {
     _numDigits = numDigits;
     progressBar = bar;
+    currentTimer = timer;
+    _queue = queue;
   }
 
   void formatOutputText(unsigned long b)
@@ -41,18 +43,18 @@ public:
   void drawBuffertoDigits(unsigned long b)
   {
     formatOutputText(b);
-    setText(digitStringBuffer, 0, _numDigits, TimerColor[currentTimer->status]);
+    setText(digitStringBuffer, 0, _numDigits, TimerColor[currentTimer.status]);
   }
 
   void update(bool forceUpdate = false)
   {
     unsigned long currentMillis = millis();
     // static long lastTime = 0;
-    if (currentTimer->remainingTimeInMS > 0 && !queue->isEmpty())
+    if (currentTimer.remainingTimeInMS > 0 && !_queue.isEmpty())
     {
       if ((currentMillis - updatedAt >= oneSecondInMS) || forceUpdate)
       {
-        drawBuffertoDigits(currentTimer->remainingTimeInMS);
+        drawBuffertoDigits(currentTimer.remainingTimeInMS);
         if (!forceUpdate)
         {
           updatedAt = currentMillis;
@@ -74,7 +76,7 @@ public:
   {
     static unsigned long expireBlinkAt;
     static bool expireLEDBlinkOn = false;
-    *currentTimer = {EXPIRE, 0};
+    currentTimer = {EXPIRE, 0};
     // NOTE: pretty sure we don't need this unless we want to show some kind
     // of custom display on expiration, but for now I think this is a good default
 
