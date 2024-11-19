@@ -41,20 +41,21 @@
 #endif
 
 unsigned long currentMillis,
-              startedAt = 0;
+    startedAt = 0;
 
 bool isRunning = false;
 
 TockTimer currentTimer;
 
-Screen tft(TFT_CS, TFT_DC, TFT_RST, TFT_LITE);
+int8_t sensorDeltas[9] = {};
+
+#define QUEUE_SIZE_ITEMS 10
+cppQueue timerQueue(sizeof(TockTimer), QUEUE_SIZE_ITEMS);
+
+Screen screen(TFT_CS, TFT_DC, TFT_RST, TFT_LITE);
 
 #define NUM_LEDS 36
 ProgressBar progressBar(NUM_LEDS, LED_PIN, currentTimer);
-
-#define QUEUE_SIZE_ITEMS 10
-
-cppQueue timerQueue(sizeof(TockTimer), QUEUE_SIZE_ITEMS);
 
 #define NUM_DIGITS 5
 SegmentDisplay segmentDisplay(NUM_DIGITS, DIGITS_PIN, &progressBar, currentTimer, timerQueue);
@@ -90,7 +91,6 @@ void initSensors()
   debugln("Setting up CAP1188...");
   bool capSensorDetected = cap.begin();
 
-
   while (!capSensorDetected)
   {
     static byte capSensorRetrys = 0;
@@ -105,7 +105,8 @@ void initSensors()
     }
     debugln("--------------------");
     debug("CAP1188 not found, aborting program");
-    while (1);
+    while (1)
+      ;
   }
 
   debugln("CAP1188 found!");
@@ -121,8 +122,6 @@ void initSensors()
   debug("config 2: ");
   debugln(cap.readRegister(config_2_register));
 }
-
-int8_t sensorDeltas[9] = {};
 
 void getSensorInput()
 {
@@ -165,7 +164,6 @@ int iterateNextInQueue(TockTimer *res)
   int result = timerQueue.peekIdx(res, idx);
   idx++;
   idx *= result;
-  dirty = static_cast<bool>(result);
   return result;
 }
 
@@ -186,7 +184,7 @@ void setup()
   progressBar.show();  // Turn OFF all pixels ASAP
   progressBar.setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS * .25);
 
-  tft.init();
+  screen.init();
   initSensors();
 
   // dummy testing data
@@ -196,7 +194,7 @@ void setup()
     timerQueue.push(&t);
   }
 
-  // TODO: updating current timer needs to update/notify segmentDisplay and progressBar
+  // TODO: updating current timer needs to update/notify  segmentDisplay and progressBar
   timerQueue.pop(&currentTimer);
 
   isRunning = true;
@@ -217,7 +215,7 @@ void loop()
 
   currentMillis = millis();
 
-  tft.updateDisplay(currentTimer, &iterateNextInQueue);
+  screen.update(currentTimer, &iterateNextInQueue);
 
   if (isRunning)
   {

@@ -76,7 +76,7 @@ public:
   {
     static unsigned long expireBlinkAt;
     static bool expireLEDBlinkOn = false;
-    currentTimer = {EXPIRE, 0};
+    currentTimer = TockTimer(EXPIRE, 0);
     // NOTE: pretty sure we don't need this unless we want to show some kind
     // of custom display on expiration, but for now I think this is a good default
 
