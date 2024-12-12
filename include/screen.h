@@ -5,7 +5,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7789.h>
 #include "typeDefs.h"
-#include "images.h"
+#include "images/images.h"
 
 #define CAPPED_NEOPIXEL_BRIGHTNESS 90
 #define MAX_BACKLIGHT_BRIGHTNESS 127
