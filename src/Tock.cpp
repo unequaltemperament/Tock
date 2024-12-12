@@ -41,7 +41,7 @@
 #endif
 
 unsigned long currentMillis,
-    startedAt = 0;
+              startedAt = 0;
 
 bool isRunning = false;
 

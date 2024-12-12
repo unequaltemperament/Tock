@@ -5,6 +5,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7789.h>
 #include "typeDefs.h"
+#include "images.h"
 
 #define CAPPED_NEOPIXEL_BRIGHTNESS 90
 #define MAX_BACKLIGHT_BRIGHTNESS 127
@@ -29,7 +30,6 @@ public:
     // but current BMP compressed encoding
     // doesn't include image size
     // width = 106, height = 40, cursor inital position x=0,y=0
-    Bitmap bmp = {106, 40, 0, 0};
 
     void enable();
     void disable();
@@ -38,9 +38,10 @@ public:
     void update(TockTimer cT, int (*func)(TockTimer *t));
 
 private:
+    
     unsigned int getNextChunk(byte numBytes = 2, const byte data[] = splashImageData);
     void advanceCursor(int numPixelsDrawn = 1);
-    void setCursorForCenteredImageDraw(int canvasWidth, int canvasHeight);
+    void setCursorForCenteredImageDraw(Bitmap &bmp);
     void drawPixel(unsigned int color);
     void drawHighPixel(unsigned int colorByte);
     void drawLowPixel(unsigned int colorByte);

@@ -65,9 +65,10 @@ void Screen::init()
 
 void Screen::drawSplash()
 {
+    Bitmap bmp = splashImage;
     unsigned int scanPad;
     bool done = false;
-    setCursorForCenteredImageDraw(width(), height());
+    setCursorForCenteredImageDraw(bmp);
 
 #if DEBUG
     long now = millis();
@@ -85,8 +86,7 @@ void Screen::drawSplash()
             {
             // EOL, go to start of next line
             case 0:
-                bmp.cursorX = width() / 2 - bmp.width / 2;
-                bmp.cursorY++;
+                setCursor(width() / 2 - bmp.width / 2, getCursorY() + 1);
                 break;
             // EOF
             case 1:
@@ -96,8 +96,7 @@ void Screen::drawSplash()
             // offsets to next pixel relative to current position
             case 2:
                 scanPad = getNextChunk();
-                bmp.cursorX += scanPad >> 8;
-                bmp.cursorY += chunkLowByte;
+                setCursor(getCursorX() + (scanPad >> 8), getCursorY() + chunkLowByte);
                 break;
             default:
             {
@@ -199,6 +198,13 @@ void Screen::update(TockTimer cT, int (*func)(TockTimer *t))
     }
 }
 
+// TODO: should this be attached to the bitmap instead?
+// Right now we can only draw one image at a time (which is fine, since we should just
+// be drawing one start-to-finish, but also our graphics handling is primitive as hell),
+// and technically should specify the image-to-draw in every call, which seems like the perfect
+// reason to move it and remove a parameter.
+// Attaching to the bitmap lets each image handle its own indexing
+// TODO: also do we need out-of-bounds checking
 unsigned int Screen::getNextChunk(byte numBytes = 2, const byte data[] = splashImageData)
 {
     static int idx = 0;
@@ -225,13 +231,12 @@ void Screen::advanceCursor(int numPixelsDrawn = 1)
     // BMP format doesn't wrap pixels around boundaries, so we can skip that check
     // all line advancement should be handled when we hit a 0x00 0x00 in the scan pad
     // so I thiiiiiiink this really only ever needs to advance x
-    bmp.cursorX += numPixelsDrawn;
+    setCursor(getCursorX() + numPixelsDrawn, getCursorY());
 }
 
-void Screen::setCursorForCenteredImageDraw(int canvasWidth, int canvasHeight)
+void Screen::setCursorForCenteredImageDraw(Bitmap &bmp)
 {
-    bmp.cursorX = canvasWidth / 2 - bmp.width / 2;
-    bmp.cursorY = canvasHeight / 2 - bmp.height / 2;
+    setCursor(width() / 2 - bmp.width / 2, height() / 2 - bmp.height / 2);
 }
 
 // TODO: Can probably accelerate this with some of the drawLine functions
@@ -244,7 +249,7 @@ void Screen::drawPixel(unsigned int color)
         // RGB565
         color = (color << 1 | color >> 3) << 11 | (color << 2 | color >> 2) << 5 | (color << 1 | color >> 3);
 
-        Adafruit_ST7789::drawPixel(bmp.cursorX, bmp.cursorY, (uint16_t)color);
+        Adafruit_ST7789::drawPixel(getCursorX(), getCursorY(), (uint16_t)color);
     }
 
     advanceCursor();
