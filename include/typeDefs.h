@@ -1,7 +1,7 @@
 #ifndef TYPES_HEADER
 #define TYPES_HEADER
 
-#include "debugSettings.h"
+//#include "debugSettings.h"
 
 
 const unsigned long oneSecondInMS = 1000,
@@ -98,9 +98,10 @@ inline char statusType[][8] = {"expired", " work", "break"};
 
 inline long TimerColor[] = {0xFF0000, 0xD9FF00, 0x2AE600};
 
-struct TockTimer
-{
+class TockTimer{
 
+  public:
+  
   TimerStatus status;
   long remainingTimeInMS;
   long initialTimeInMS;
@@ -111,7 +112,14 @@ struct TockTimer
     initialTimeInMS = initTimeInS * 1000;
     remainingTimeInMS = initialTimeInMS;
   }
+
+
+  double getElapsedPercentage(){
+    return (initialTimeInMS - remainingTimeInMS) / initialTimeInMS;
+  }
+
 };
 
 
-#endif
+
+#endif //header guard

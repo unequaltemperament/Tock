@@ -3,24 +3,26 @@
 
 #include "debugSettings.h"
 #include "Arduino.h"
-#include "cppQueue.h"
 #include <RGBDigitV2.h>
 #include "typeDefs.h"
 #include "progressBar.h"
+
+class TimerManager;
 
 class SegmentDisplay : public RGBDigit
 {
 
 public:
 
-  SegmentDisplay(int numDigits, int digitsPin, ProgressBar *bar, TockTimer &timer, cppQueue &queue);
+  SegmentDisplay(int numDigits, int digitsPin);
   
   int _numDigits;
   unsigned long updatedAt = 0;
+  const unsigned long normalUpdateIntervalInMS = 1000;
   const unsigned long expireBlinkIntervalInMs = 420;
-  TockTimer &currentTimer;
-  cppQueue &_queue;
-  ProgressBar *progressBar = NULL;
+  TimerManager* manager = nullptr;
+
+  void setManager(const TimerManager* manager);
 
   char digitStringBuffer[6] = {};
 
@@ -38,4 +40,4 @@ public:
 //  long roundUp(long numToRound, long multiple);
 };
 
-#endif
+#endif //header guard

@@ -4,8 +4,8 @@ Screen::Screen(int8_t cs, int8_t dc, int8_t rst, int8_t lite)
     : Adafruit_ST7789(cs, dc, rst)
 {
     LITE_PIN = lite;
-    wTB = Adafruit_GFX::width();
-    hTB = Adafruit_GFX::height();
+    textBoundW = Adafruit_GFX::width();
+    textBoundH = Adafruit_GFX::height();
 }
 
 void Screen::enable()
@@ -45,7 +45,7 @@ void Screen::init()
         {
             break;
         }
-        delay(BOOT_FADE_IN_TIME_MS / MAX_BACKLIGHT_BRIGHTNESS);
+        delay(BOOT_FADE_IN_TIME_MS/ MAX_BACKLIGHT_BRIGHTNESS);
     }
 
     drawSplash();
@@ -58,88 +58,26 @@ void Screen::init()
 
     char title[] = {"Current:"};
 
-    getTextBounds(title, 0, 0, &xTB, &yTB, &wTB, &hTB);
-    setCursor(120 - (wTB / 2), 5);
+    getTextBounds(title, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+    setCursor(120 - (textBoundW / 2), 5);
     print(title);
 }
 
 void Screen::drawSplash()
 {
-    Bitmap bmp = splashImage;
-    unsigned int scanPad;
-    bool done = false;
-    setCursorForCenteredImageDraw(bmp);
 
 #if DEBUG
     long now = millis();
 #endif
 
-    while (!done)
-    {
-        scanPad = getNextChunk();
-        if ((scanPad >> 8) == 0)
-        {
-            const int chunkLowByte = scanPad & 0x00FF;
-            // 0,1,2 are escape values for encoded mode
-            // values >= 3 are absolute mode
-            switch (chunkLowByte)
-            {
-            // EOL, go to start of next line
-            case 0:
-                setCursor(width() / 2 - bmp.width / 2, getCursorY() + 1);
-                break;
-            // EOF
-            case 1:
-                done = true;
-                break;
-            // Delta, following two bytes are horizontal & vertical
-            // offsets to next pixel relative to current position
-            case 2:
-                scanPad = getNextChunk();
-                setCursor(getCursorX() + (scanPad >> 8), getCursorY() + chunkLowByte);
-                break;
-            default:
-            {
-                // absolute mode, scanPad is # of indexes
-                // sorry i didn't say indices
-                const int numIndexes = chunkLowByte;
-                for (int j = 0; j < numIndexes; j += 2)
-                {
-                    scanPad = getNextChunk(1);
-                    drawHighPixel(scanPad);
-                    drawLowPixel(scanPad);
-                }
-                // adjust for word boundary alignment by chewing up padding byte
-                if (numIndexes % 4 > 1)
-                {
-                    getNextChunk(1);
-                }
-            }
-            }
-        }
+    //TODO: why does copying this into another variable reduce program size?
+    Bitmap bmp = splashImage;
+    //draw at screen center
+    setCursor((width() - bmp.width) / 2, (height() - bmp.height ) / 2);
+    draw4BitBitmap(bmp);
 
-        else
-        {
-            // definitely encoded
-            const int repeatLength = scanPad >> 8;
-            scanPad &= 0x00FF;
 
-            int drawIndex = 0;
-
-            while (drawIndex < repeatLength)
-            {
-                drawHighPixel(scanPad);
-                drawIndex++;
-                // odd number of pixels, bail early
-                if (drawIndex == repeatLength)
-                {
-                    continue;
-                }
-                drawLowPixel(scanPad);
-                drawIndex++;
-            }
-        }
-    }
+    
 #if DEBUG
     now = millis() - now;
     char doneText[16] = "done";
@@ -147,8 +85,8 @@ void Screen::drawSplash()
     sprintf(&doneText[mspad], "ms");
 
     setTextSize(2);
-    getTextBounds(doneText, 0, 0, &xTB, &yTB, &wTB, &hTB);
-    setCursor(width() / 2 - (wTB / 2), height() - hTB - 10);
+    getTextBounds(doneText, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+    setCursor(width() / 2 - (textBoundW / 2), height() - textBoundH - 10);
     setTextColor(0x00);
     print(doneText);
     debugln("splash done.");
@@ -169,8 +107,8 @@ void Screen::update(TockTimer cT, int (*func)(TockTimer *t))
         print(cT.initialTimeInMS / 1000);
 
         setTextColor(0xFFFF);
-        getTextBounds(queued, 0, 0, &xTB, &yTB, &wTB, &hTB);
-        setCursor(120 - (wTB / 2), 70);
+        getTextBounds(queued, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+        setCursor(120 - (textBoundW / 2), 70);
         print(queued);
 
         cursorStart = 95;
@@ -205,9 +143,8 @@ void Screen::update(TockTimer cT, int (*func)(TockTimer *t))
 // reason to move it and remove a parameter.
 // Attaching to the bitmap lets each image handle its own indexing
 // TODO: also do we need out-of-bounds checking
-unsigned int Screen::getNextChunk(byte numBytes = 2, const byte data[] = splashImageData)
+unsigned int Screen::getNextChunk(byte numBytes, const byte *data)
 {
-    static int idx = 0;
     unsigned int ret;
     if (numBytes == 1)
     {
@@ -226,24 +163,11 @@ unsigned int Screen::getNextChunk(byte numBytes = 2, const byte data[] = splashI
     return ret;
 }
 
-void Screen::advanceCursor(int numPixelsDrawn = 1)
-{
-    // BMP format doesn't wrap pixels around boundaries, so we can skip that check
-    // all line advancement should be handled when we hit a 0x00 0x00 in the scan pad
-    // so I thiiiiiiink this really only ever needs to advance x
-    setCursor(getCursorX() + numPixelsDrawn, getCursorY());
-}
-
-void Screen::setCursorForCenteredImageDraw(Bitmap &bmp)
-{
-    setCursor(width() / 2 - bmp.width / 2, height() / 2 - bmp.height / 2);
-}
-
 // TODO: Can probably accelerate this with some of the drawLine functions
 void Screen::drawPixel(unsigned int color)
 {
 
-    // TODO: bg color checking
+    // TODO: bg color checking (if color != bgcolor)
     if (color != 0x0F)
     {
         // RGB565
@@ -252,7 +176,10 @@ void Screen::drawPixel(unsigned int color)
         Adafruit_ST7789::drawPixel(getCursorX(), getCursorY(), (uint16_t)color);
     }
 
-    advanceCursor();
+    // Compressed 4-bit bmp doesn't wrap pixels around boundaries, so we can skip that check
+    // all line advancement should be handled when we hit a 0x00 0x00 in the scan pad
+    // so I thiiiiiiink this really only ever needs to advance x
+    setCursor(getCursorX() + 1, getCursorY());
 }
 
 void Screen::drawHighPixel(unsigned int colorByte)
@@ -269,3 +196,79 @@ void Screen::drawLowPixel(unsigned int colorByte)
     unsigned int color = colorByte & 0x000F;
     drawPixel(color);
 }
+
+void Screen::draw4BitBitmap(Bitmap &bmp)
+{
+    
+    unsigned int scanPad;
+    bool done = false;
+
+    idx = 0;
+    
+    while (!done)
+    {
+        scanPad = getNextChunk();
+        if ((scanPad >> 8) == 0)
+        {
+            const int chunkLowByte = scanPad & 0x00FF;
+            // 0,1,2 are escape values for encoded mode
+            // values >= 3 are absolute mode
+            switch (chunkLowByte)
+            {
+                // EOL, go to start of next line
+                case 0:
+                    setCursor(width() / 2 - bmp.width / 2, getCursorY() + 1);
+                    break;
+                // EOF
+                case 1:
+                    done = true;
+                    break;
+                // Delta, following two bytes are horizontal & vertical
+                // offsets to next pixel relative to current position
+                case 2:
+                    scanPad = getNextChunk();
+                    setCursor(getCursorX() + (scanPad >> 8), getCursorY() + chunkLowByte);
+                    break;
+                default:
+                {
+                    // absolute mode, scanPad is # of indexes
+                    // sorry i didn't say indices
+                    const int numIndexes = chunkLowByte;
+                    for (int j = 0; j < numIndexes; j += 2)
+                    {
+                        scanPad = getNextChunk(1);
+                        drawHighPixel(scanPad);
+                        drawLowPixel(scanPad);
+                    }
+                    // adjust for word boundary alignment by chewing up padding byte
+                    if (numIndexes % 4 > 1)
+                    {
+                        getNextChunk(1);
+                    }
+                }
+            }
+        }
+
+        else  // definitely encoded
+        {
+
+            int drawIndex = 0;
+            const int repeatLength = scanPad >> 8;
+            scanPad &= 0x00FF;
+
+            while (drawIndex < repeatLength)
+            {
+                drawHighPixel(scanPad);
+                drawIndex++;
+                // odd number of pixels, bail early
+                if (drawIndex == repeatLength)
+                {
+                    continue;
+                }
+                drawLowPixel(scanPad);
+                drawIndex++;
+            }
+        }
+    }
+};
+

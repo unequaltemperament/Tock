@@ -1,12 +1,10 @@
 #include "segmentDisplay.h"
+#include "manager.h"
 
-  SegmentDisplay::SegmentDisplay(int numDigits, int digitsPin, ProgressBar *bar, TockTimer &timer, cppQueue &queue)
-      : RGBDigit(numDigits, digitsPin), _queue(queue), currentTimer(timer)
+  SegmentDisplay::SegmentDisplay(int numDigits, int digitsPin)
+      : RGBDigit(numDigits, digitsPin)
   {
     _numDigits = numDigits;
-    progressBar = bar;
-    currentTimer = timer;
-    _queue = queue;
   }
 
   void SegmentDisplay::formatOutputText(unsigned long b)
@@ -21,28 +19,28 @@
   void SegmentDisplay::drawBuffertoDigits(unsigned long b)
   {
     formatOutputText(b);
-    setText(digitStringBuffer, 0, _numDigits, TimerColor[currentTimer.status]);
+    setText(digitStringBuffer, 0, _numDigits, TimerColor[manager->getStatus()]);
   }
 
   void SegmentDisplay::update(bool forceUpdate = false)
   {
-    unsigned long currentMillis = millis();
-    // static long lastTime = 0;
-    if (currentTimer.remainingTimeInMS > 0 && !_queue.isEmpty())
-    {
-      if ((currentMillis - updatedAt >= oneSecondInMS) || forceUpdate)
-      {
-        drawBuffertoDigits(currentTimer.remainingTimeInMS);
-        if (!forceUpdate)
-        {
-          updatedAt = currentMillis;
-        }
-      };
-    }
-    else
-    {
-      expireBlink(currentMillis);
-    };
+    // unsigned long currentMillis = millis();
+
+    // if (manager.isExpired())
+    // {
+    //   if ((currentMillis - updatedAt >= oneSecondInMS) || forceUpdate)
+    //   {
+    //     drawBuffertoDigits(manager.currentTimer.remainingTimeInMS);
+    //     if (!forceUpdate)
+    //     {
+    //       updatedAt = currentMillis;
+    //     }
+    //   };
+    // }
+    // else
+    // {
+    //   expireBlink(currentMillis);
+    // };
   }
 
   void SegmentDisplay::forceUpdate()
@@ -52,39 +50,39 @@
 
   void SegmentDisplay::expireBlink(unsigned long currentMillis)
   {
-    static unsigned long expireBlinkAt;
-    static bool expireLEDBlinkOn = false;
-    currentTimer = TockTimer(EXPIRE, 0);
-    // NOTE: pretty sure we don't need this unless we want to show some kind
-    // of custom display on expiration, but for now I think this is a good default
+    // static unsigned long expireBlinkAt;
+    // static bool expireLEDBlinkOn = false;
+    // manager.currentTimer = TockTimer(EXPIRE, 0);
+    // // NOTE: pretty sure we don't need this unless we want to show some kind
+    // // of custom display on expiration, but for now I think this is a good default
 
-    // const char expireZeros[6] = "00000";
+    // // const char expireZeros[6] = "00000";
 
-    if (currentMillis - expireBlinkAt >= expireBlinkIntervalInMs)
-    {
-      expireLEDBlinkOn = !expireLEDBlinkOn;
-      expireBlinkAt = currentMillis;
-      if (expireLEDBlinkOn)
-      {
+    // if (currentMillis - expireBlinkAt >= expireBlinkIntervalInMs)
+    // {
+    //   expireLEDBlinkOn = !expireLEDBlinkOn;
+    //   expireBlinkAt = currentMillis;
+    //   if (expireLEDBlinkOn)
+    //   {
 
-        // in case we were doing "10 second hurry up"
-        clearDot(2);
+    //     // in case we were doing "10 second hurry up"
+    //     clearDot(2);
 
-        drawBuffertoDigits(0);
+    //     drawBuffertoDigits(0);
 
-        // TODO: this doesn't belong here
-        progressBar->fill(TimerColor[EXPIRE], 0, progressBar->_num_leds);
-        progressBar->show();
-      }
-      else
-      {
-        clearAll();
+    //     // TODO: this doesn't belong here
+    //     progressBar->fill(TimerColor[EXPIRE], 0, progressBar->_num_leds);
+    //     progressBar->show();
+    //   }
+    //   else
+    //   {
+    //     clearAll();
 
-        // TODO: this doesn't belong here
-        progressBar->clear();
-        progressBar->show();
-      }
-    }
+    //     // TODO: this doesn't belong here
+    //     progressBar->clear();
+    //     progressBar->show();
+    //   }
+    // }
   }
 
 // private:

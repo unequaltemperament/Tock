@@ -1,36 +1,56 @@
 #include "progressBar.h"
 
-ProgressBar::ProgressBar(int num_leds, int led_pin, TockTimer timer)
-    : Adafruit_NeoPixel(num_leds, led_pin, NEO_GRB), currentTimer(timer)
+ProgressBar::ProgressBar(int num_leds, int led_pin)
+    : Adafruit_NeoPixel(num_leds, led_pin, NEO_GRB)
 {
     _num_leds = num_leds;
-    // currentTimer = timer
-};
+    //uint8_t *_pixels = getPixels();
+    
+}
 
 void ProgressBar::update(bool forceUpdate = false)
 {
-    const unsigned long currentMillis = millis();
+    // const unsigned long currentMillis = millis();
 
-    if ((currentMillis - updatedAt >= lightIntervalInMs && currentTimer.remainingTimeInMS > 0) || forceUpdate)
-    {
-        if (!forceUpdate)
-        {
-            updatedAt = currentMillis;
-        }
-        // TODO: get rid of this modff
-        float fullLEDsInt;
-        float partial = modff(((float)currentTimer.remainingTimeInMS * _num_leds / currentTimer.initialTimeInMS), &fullLEDsInt);
-        fullLEDsInt = _num_leds - fullLEDsInt;
-        for (int i = 0; i < (int)fullLEDsInt; i++)
-        {
-            setPixelColor(getMappedLED(i), TimerColor[currentTimer.status]);
-        }
-        if ((int)fullLEDsInt < _num_leds && partial > 0)
-        {
-            setPixelColor(getMappedLED((int)fullLEDsInt), getDimmedColor(TimerColor[currentTimer.status], 1 - partial));
-        }
-        show();
-    }
+    // if ((currentMillis - updatedAt >= lightIntervalInMs && manager.currentTimer.remainingTimeInMS > 0) || forceUpdate)
+    // {
+    //     if (!forceUpdate)
+    //     {
+    //         updatedAt = currentMillis;
+    //     }
+    //     // TODO: get rid of this modff
+    //     // TODO: (HANDLED?)
+
+    //     double elapsedPercentage = manager.currentTimer.getElapsedPercentage();
+
+    //     double partialLEDPercentage = elapsedPercentage - static_cast<int>(elapsedPercentage);
+    //     int fullLEDs = elapsedPercentage * _num_leds;
+
+
+    //     /*float fullLEDsInt;
+    //     float partial = modff(((float)currentTimer.remainingTimeInMS * _num_leds / currentTimer.initialTimeInMS), &fullLEDsInt);
+    //     fullLEDsInt = _num_leds - fullLEDsInt;*/
+
+    //     /*for (int i = 0; i < fullLEDs; i++)
+    //     {
+    //         setPixelColor(getMappedLED(i), TimerColor[currentTimer.status]);
+    //         //_pixels[getMappedLED(i)] = TimerColor[currentTimer.status];
+    //     }*/
+
+    //     //NOTE: this sets the last full LED on every pass
+    //     //Probably not a performance issue, but would rather note it now
+
+    //     //using fullLEDs as an index is off-by-1, -1 is the last actual fullLED and -0 is the current partial LED
+    //     if(fullLEDs > 0){
+    //         setPixelColor(getMappedLED(fullLEDs-1), TimerColor[manager.currentTimer.status]);
+    //     }
+
+    //     if (fullLEDs < _num_leds && partialLEDPercentage > 0)
+    //     {
+    //         setPixelColor(getMappedLED(fullLEDs), getDimmedColor(TimerColor[manager.currentTimer.status], /* 1 - */ partialLEDPercentage));
+    //     }
+    //     show();
+    // }
 }
 
 void ProgressBar::forceUpdate()

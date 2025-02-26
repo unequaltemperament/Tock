@@ -1,24 +1,3 @@
-// TODO:move these types somewhere else when you're not feeling lazy
-// vvvvvvvvvvvvvvvvv
-
-enum class BitmapEncoding
-{
-    none,
-    bit4,
-    bit8
-};
-
-struct Bitmap
-{
-    BitmapEncoding encoding;
-    int width;
-    int height;
-    int dataLength;
-    const byte *data;
-};
-
-//^^^^^^^^^^^^^^^^
-
 // make static again if we move this back inside something
 const byte splashImageData[1492] PROGMEM = {
     0x52, 0xFF, 0x00, 0x06, 0xFD, 0x00, 0x02, 0x00, 0x12, 0xFF, 0x00, 0x00,
@@ -149,7 +128,7 @@ const byte splashImageData[1492] PROGMEM = {
 
 inline Bitmap splashImage = {
     BitmapEncoding::bit4,
-    106,
-    40,
-    1492,
+    106, //width
+    40, //height
+    1492, //dataLength
     splashImageData};
