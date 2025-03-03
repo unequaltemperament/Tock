@@ -1,6 +1,10 @@
 #include "segmentDisplay.h"
 #include "manager.h"
 
+void SegmentDisplay::setManager(TimerManager* const m){
+  manager = m;
+}
+
   SegmentDisplay::SegmentDisplay(int numDigits, int digitsPin)
       : RGBDigit(numDigits, digitsPin)
   {
@@ -24,23 +28,23 @@
 
   void SegmentDisplay::update(bool forceUpdate = false)
   {
-    // unsigned long currentMillis = millis();
+    unsigned long currentMillis = millis();
 
-    // if (manager.isExpired())
-    // {
-    //   if ((currentMillis - updatedAt >= oneSecondInMS) || forceUpdate)
-    //   {
-    //     drawBuffertoDigits(manager.currentTimer.remainingTimeInMS);
-    //     if (!forceUpdate)
-    //     {
-    //       updatedAt = currentMillis;
-    //     }
-    //   };
-    // }
-    // else
-    // {
-    //   expireBlink(currentMillis);
-    // };
+    if (manager->isExpired())
+    {
+      if ((currentMillis - updatedAt >= oneSecondInMS) || forceUpdate)
+      {
+        drawBuffertoDigits(manager->getRemainingTime());
+        if (!forceUpdate)
+        {
+          updatedAt = currentMillis;
+        }
+      };
+    }
+    else
+    {
+      expireBlink(currentMillis);
+    };
   }
 
   void SegmentDisplay::forceUpdate()
@@ -58,7 +62,7 @@
 
     // // const char expireZeros[6] = "00000";
 
-    // if (currentMillis - expireBlinkAt >= expireBlinkIntervalInMs)
+    // if (currentMillis - expireBlinkAt >= expireBlinkIntervalInMS)
     // {
     //   expireLEDBlinkOn = !expireLEDBlinkOn;
     //   expireBlinkAt = currentMillis;

@@ -8,6 +8,10 @@ Screen::Screen(int8_t cs, int8_t dc, int8_t rst, int8_t lite)
     textBoundH = Adafruit_GFX::height();
 }
 
+void Screen::setManager(TimerManager* const m){
+    manager = m;
+}
+
 void Screen::enable()
 {
     enableDisplay(true);

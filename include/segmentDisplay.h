@@ -19,10 +19,10 @@ public:
   int _numDigits;
   unsigned long updatedAt = 0;
   const unsigned long normalUpdateIntervalInMS = 1000;
-  const unsigned long expireBlinkIntervalInMs = 420;
+  const unsigned long expireBlinkIntervalInMS = 420;
   TimerManager* manager = nullptr;
 
-  void setManager(const TimerManager* manager);
+  void setManager(TimerManager* const m);
 
   char digitStringBuffer[6] = {};
 

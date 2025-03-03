@@ -27,9 +27,9 @@ public:
     uint16_t textBoundW = 0, 
              textBoundH = 0;
 
-    TimerManager* manager;
+    TimerManager* manager = nullptr;
 
-    void setManager(const TimerManager* manager);
+    void setManager(TimerManager* const m);
 
     void enable();
     void disable();

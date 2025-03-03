@@ -24,7 +24,7 @@ public:
 
   void forceUpdate();
 
-  void setManager(const TimerManager* manager);
+  void setManager(TimerManager* const manager);
 
 private:
   int getMappedLED(int realID);

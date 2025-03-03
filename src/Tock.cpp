@@ -13,14 +13,9 @@ constexpr char NUM_LEDS= 36;
 constexpr char NUM_DIGITS= 5;
 constexpr char QUEUE_MAX_SIZE= 10;
 
-unsigned long currentMillis,
-              startedAt = 0;
-
-bool isRunning = false;
+unsigned long currentMillis;
 
 TockTimer currentTimer;
-
-class TimerManager;
 
 cppQueue timerQueue(sizeof(TockTimer), QUEUE_MAX_SIZE);
 ProgressBar progressBar(NUM_LEDS, LED_PIN);
@@ -73,6 +68,7 @@ void setup()
   initSensors();
 
   // dummy testing data
+  timerQueue.flush();
   for (int i = 0; i < QUEUE_MAX_SIZE; i++)
   {
     TockTimer t = generateTockTimer(static_cast<TimerStatus>((i % 2) + 1), random(300, 1000));
@@ -82,9 +78,8 @@ void setup()
   // TODO: updating current timer needs to update/notify  segmentDisplay and progressBar
   timerQueue.pop(&currentTimer);
 
-  isRunning = true;
   currentMillis = millis();
-  startedAt = currentMillis;
+  manager.startedAt = currentMillis;
 
   segmentDisplay.updatedAt = currentMillis;
   progressBar.updatedAt = currentMillis;
@@ -101,21 +96,10 @@ void loop()
   currentMillis = millis();
 
   getSensorInput();
-
+  manager.update();
+  screen.update(currentTimer, &iterateNextInQueue);
   //currentTimer.update();
   //segmentDisplay.update();
   //progressBar.update();
   //screen.update();
-
-  screen.update(currentTimer, &iterateNextInQueue);
-
-  if (isRunning)
-  {
-    currentTimer.remainingTimeInMS = currentTimer.initialTimeInMS - (currentMillis - startedAt);
-    segmentDisplay.update(currentMillis);
-    if (currentTimer.status != EXPIRE)
-    {
-      progressBar.update();
-    }
-  }
 }
