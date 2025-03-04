@@ -69,16 +69,13 @@ void setup()
 
 
   manager.loadNextTimer();
-  currentMillis = millis();
   manager.start();
-
   debug(millis());
   debugln(": End of setup, entering loop");
 }
 
 void loop()
 {
-
   currentMillis = millis();
   getSensorInput();
   manager.update();

@@ -82,6 +82,7 @@ public:
     }
 
     void start(){
+        currentMillis = millis();
         isRunning = true;
         startedAt = currentMillis;
 

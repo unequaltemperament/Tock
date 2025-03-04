@@ -38,12 +38,12 @@ public:
     void update(TockTimer* const cT, int (*func)(TockTimer *t));
 
 private:
-    int idx;
+    int idx = 0;
     //TODO: this is all stuff that should probably be in the Bitmap class
     unsigned int getNextChunk(byte numBytes = 2, const byte* data = splashImage.data);
     void drawPixel(unsigned int color);
     void drawHighPixel(unsigned int colorByte);
     void drawLowPixel(unsigned int colorByte);
-    void draw4BitBitmap(Bitmap &bmp);
+    void draw4BitBitmap(const Bitmap &bmp);
 };
 #endif //header guard

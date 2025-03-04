@@ -100,43 +100,45 @@ void Screen::drawSplash()
 
 void Screen::update(TockTimer* const cT, int (*func)(TockTimer *t))
 {
-    TockTimer storage;
+    TockTimer buffer;
     const char queued[] = {"Coming Up:"};
     if (dirty)
     {
-        int cursorStart = 30;
+        int cursorY = 30;
         setTextColor(manager->getTimerColor(), 0x0000);
-        setCursor(15, cursorStart);
+        setCursor(15, cursorY);
+
+        //TODO: faster to combine these to one call?
         print(manager->getStatus());
         print(" for ");
         print(manager->getCurrentTimer()->initialTimeInMS / 1000);
 
-        setTextColor(0xFFFF);
         getTextBounds(queued, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+        setTextColor(0xFFFF);
         setCursor(120 - (textBoundW / 2), 70);
         print(queued);
 
-        cursorStart = 95;
+        cursorY = 95;
 
-        int result = func(&storage);
+        int result = func(&buffer);
 
         // TODO: better handling of flagging screen needing redraw
         dirty = static_cast<bool>(result);
-        while (result && storage.status != 0 && dirty)
+        while (result && buffer.status != 0 && dirty)
         {
-            long curColor = TimerColor[storage.status];
+            long curColor = TimerColor[buffer.status];
             curColor = (curColor >> 8 & 0xf800) | (curColor >> 5 & 0x07e0) | (curColor >> 3 & 0x001f);
             setTextColor(curColor, 0x0000);
-            setCursor(15, cursorStart);
-            print(statusType[storage.status]);
+            setCursor(15, cursorY);
+            print(statusType[buffer.status]);
             print(" for ");
-            print(storage.initialTimeInMS / 1000);
-            cursorStart += 25;
-            // debug(storage.status);
+            print(buffer.initialTimeInMS / 1000);
+            cursorY += 25;
+            // debug(buffer.status);
             // debug(" for ");
-            // debugln(storage.initialTimeInMS/1000);
+            // debugln(buffer.initialTimeInMS/1000);
             // debugln(result);
-            result = func(&storage);
+            result = func(&buffer);
         }
     }
 }
@@ -160,7 +162,7 @@ unsigned int Screen::getNextChunk(byte numBytes, const byte *data)
     {
         ret = pgm_read_word(data + idx);
         // Little-endian, swap the bytes around
-        // so our consumer gets the individual bytes in order
+        // so our consumer always gets the individual bytes in order
         ret = (ret >> 8) | (ret << 8);
         idx += 2;
     }
@@ -202,17 +204,18 @@ void Screen::drawLowPixel(unsigned int colorByte)
     drawPixel(color);
 }
 
-void Screen::draw4BitBitmap(Bitmap &bmp)
+void Screen::draw4BitBitmap(const Bitmap& bmp)
 {
     
-    unsigned int scanPad;
+
     bool done = false;
 
     idx = 0;
     
     while (!done)
     {
-        scanPad = getNextChunk();
+        unsigned int scanPad = getNextChunk();
+
         if ((scanPad >> 8) == 0)
         {
             const int chunkLowByte = scanPad & 0x00FF;
