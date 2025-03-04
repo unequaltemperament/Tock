@@ -8,6 +8,7 @@
 #include "progressBar.h"
 
 class TimerManager;
+extern unsigned long currentMillis;
 
 class SegmentDisplay : public RGBDigit
 {

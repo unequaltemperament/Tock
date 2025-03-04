@@ -16,7 +16,6 @@ void ProgressBar::setManager(TimerManager* const m){
 
 void ProgressBar::update(bool forceUpdate = false)
 {
-    const unsigned long currentMillis = millis();
 
     if ((currentMillis - updatedAt >= lightIntervalInMs && manager->getRemainingTime() > 0) || forceUpdate)
     {

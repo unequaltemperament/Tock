@@ -15,8 +15,6 @@ constexpr char QUEUE_MAX_SIZE= 10;
 
 unsigned long currentMillis;
 
-TockTimer currentTimer;
-
 cppQueue timerQueue(sizeof(TockTimer), QUEUE_MAX_SIZE);
 ProgressBar progressBar(NUM_LEDS, LED_PIN);
 SegmentDisplay segmentDisplay(NUM_DIGITS, DIGITS_PIN);
@@ -68,7 +66,7 @@ void setup()
   initSensors();
 
   // dummy testing data
-  timerQueue.flush();
+  timerQueue.flush(); //here now in case we wrap this in some kind of reset function later
   for (int i = 0; i < QUEUE_MAX_SIZE; i++)
   {
     TockTimer t = generateTockTimer(static_cast<TimerStatus>((i % 2) + 1), random(300, 1000));
@@ -76,15 +74,9 @@ void setup()
   }
 
   // TODO: updating current timer needs to update/notify  segmentDisplay and progressBar
-  timerQueue.pop(&currentTimer);
-
+  manager.loadNextTimer();
   currentMillis = millis();
-  manager.startedAt = currentMillis;
-
-  segmentDisplay.updatedAt = currentMillis;
-  progressBar.updatedAt = currentMillis;
-  segmentDisplay.forceUpdate();
-  progressBar.forceUpdate();
+  manager.start();
 
   debug(millis());
   debugln(": End of setup, entering loop");
@@ -94,12 +86,7 @@ void loop()
 {
 
   currentMillis = millis();
-
   getSensorInput();
   manager.update();
-  screen.update(currentTimer, &iterateNextInQueue);
-  //currentTimer.update();
-  //segmentDisplay.update();
-  //progressBar.update();
-  //screen.update();
+  screen.update(manager.getCurrentTimer(), &iterateNextInQueue);
 }

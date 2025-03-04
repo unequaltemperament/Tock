@@ -1,4 +1,5 @@
 #include "screen.h"
+#include "manager.h"
 
 Screen::Screen(int8_t cs, int8_t dc, int8_t rst, int8_t lite)
     : Adafruit_ST7789(cs, dc, rst)
@@ -97,18 +98,18 @@ void Screen::drawSplash()
 #endif
 }
 
-void Screen::update(TockTimer cT, int (*func)(TockTimer *t))
+void Screen::update(TockTimer* const cT, int (*func)(TockTimer *t))
 {
     TockTimer storage;
     const char queued[] = {"Coming Up:"};
     if (dirty)
     {
         int cursorStart = 30;
-        setTextColor(TimerColor[cT.status], 0x0000);
+        setTextColor(manager->getTimerColor(), 0x0000);
         setCursor(15, cursorStart);
-        print(statusType[cT.status]);
+        print(manager->getStatus());
         print(" for ");
-        print(cT.initialTimeInMS / 1000);
+        print(manager->getCurrentTimer()->initialTimeInMS / 1000);
 
         setTextColor(0xFFFF);
         getTextBounds(queued, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);

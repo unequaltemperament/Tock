@@ -35,7 +35,7 @@ public:
     void disable();
     void init();
     void drawSplash();
-    void update(TockTimer cT, int (*func)(TockTimer *t));
+    void update(TockTimer* const cT, int (*func)(TockTimer *t));
 
 private:
     int idx;

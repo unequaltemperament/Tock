@@ -8,6 +8,8 @@
 #include "screen.h"
 #include "sensors.h"
 
+extern unsigned long currentMillis;
+
 class TimerManager
 {
 private:
@@ -42,39 +44,53 @@ public:
 
     unsigned long startedAt = 0;
 
-    void update(){
+    void update();
 
-        if (isRunning)
-        {
-          currentTimer->remainingTimeInMS = currentTimer->initialTimeInMS - (currentMillis - startedAt);
-          segmentDisplay.update(currentMillis);
-          if (getStatus() != EXPIRE)
-          {
-            progressBar.update();
-          }
-        }
-
-    };
-
-    bool isExpired()
+    bool inline isExpired()
     {
         return currentTimer->getElapsedPercentage() >= 1 &&
                queue.isEmpty();
     }
 
-    double getElapsedPercentage()
+    double inline getElapsedPercentage()
     {
         return currentTimer->getElapsedPercentage();
     }
 
-    TimerStatus getStatus()
+    TimerStatus inline getStatus()
     {
         return currentTimer->status;
     };
 
-    long getRemainingTime()
+    long inline getTimerColor(){
+        return TimerColor[getStatus()];
+    }
+
+    long inline getRemainingTime()
     {
         return currentTimer->remainingTimeInMS;
+    }
+
+    bool inline loadNextTimer(){
+        queue.pop(currentTimer);
+    }
+
+    void start(){
+        isRunning = true;
+        startedAt = currentMillis;
+
+        segmentDisplay.updatedAt = currentMillis;
+        progressBar.updatedAt = currentMillis;
+        segmentDisplay.forceUpdate();
+        progressBar.forceUpdate();
+    }
+
+    void stop(){
+        isRunning = false;
+    }
+
+    TockTimer* const getCurrentTimer(){
+        return currentTimer;
     }
 };
 

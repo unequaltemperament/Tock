@@ -7,6 +7,7 @@
 
 struct TockTimer;
 class TimerManager;
+extern unsigned long currentMillis;
 
 class ProgressBar : public Adafruit_NeoPixel
 {
