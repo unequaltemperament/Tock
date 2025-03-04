@@ -73,6 +73,12 @@ public:
 
     bool inline loadNextTimer(){
         queue.pop(currentTimer);
+        segmentDisplay.updatedAt = currentMillis;
+        progressBar.updatedAt = currentMillis;
+        segmentDisplay.forceUpdate();
+        progressBar.forceUpdate();
+
+        progressBar.lightIntervalInMs = (currentTimer->initialTimeInMS / progressBar._num_leds) / progressBar.partialSteps;
     }
 
     void start(){

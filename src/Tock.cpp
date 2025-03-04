@@ -24,22 +24,16 @@ TimerManager manager(segmentDisplay,progressBar,screen,timerQueue);
 
 TockTimer generateTockTimer(TimerStatus status = WORK, long initialTimeInSeconds = 3600)
 {
-  TockTimer newTimer = TockTimer{status, initialTimeInSeconds};
-  // TODO: do this in progressBar
-  // either as a return value, or update when currentTimer is updated.
-  // currently we couple "make any timer" and "set value based on current timer"
-  // BAD NEWS BEARZ
-  progressBar.lightIntervalInMs = (newTimer.initialTimeInMS / NUM_LEDS) / progressBar.partialSteps;
-  return newTimer;
+  return TockTimer{status, initialTimeInSeconds};
 }
 
 // this breaks after a single dequeue, I bet
-int iterateNextInQueue(TockTimer *res)
+int iterateNextInQueue(TockTimer *buf)
 {
   static int idx = 0;
 
   // result is 0 when idx goes off the end of the queue
-  int result = timerQueue.peekIdx(res, idx);
+  int result = timerQueue.peekIdx(buf, idx);
   idx++;
   idx *= result;
   return result;
@@ -73,7 +67,7 @@ void setup()
     timerQueue.push(&t);
   }
 
-  // TODO: updating current timer needs to update/notify  segmentDisplay and progressBar
+
   manager.loadNextTimer();
   currentMillis = millis();
   manager.start();
