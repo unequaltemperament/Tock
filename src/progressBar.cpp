@@ -77,11 +77,11 @@ void ProgressBar::forceUpdate()
 
 int ProgressBar::getMappedLED(int realID)
 {
-    realID = _num_leds - realID - 1;
-    if(lightFromWiredEnd){
-       realID = _num_leds - realID; 
-    }  
-    return (realID % 2 == 0) ? (realID / 2) : (_num_leds - (realID / 2) - 1);
+    if(!lightFromWiredEnd) {
+        realID = _num_leds - realID - 1;}
+
+    //return (realID % 2 == 0) ? (realID / 2) : (_num_leds - (realID / 2) - 1);
+    return ((realID & 1) == 0) ? (realID >> 1) : _num_leds - (realID >> 1) - 1;
 }
 
 // TODO: keep working on this....
