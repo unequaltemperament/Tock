@@ -56,17 +56,18 @@ void setup()
   progressBar.show();  // Turn OFF all pixels ASAP
   progressBar.setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS * .25);
 
+  screen.enabled=false;
   screen.init();
   initSensors();
 
   // dummy testing data
   timerQueue.flush(); //here now in case we wrap this in some kind of reset function later
-  for (int i = 0; i < QUEUE_MAX_SIZE; i++)
+  timerQueue.push(&generateTockTimer(TimerStatus::WORK,NUM_LEDS*2));
+  for (int i = 1; i < QUEUE_MAX_SIZE; i++)
   {
     TockTimer t = generateTockTimer(static_cast<TimerStatus>((i % 2) + 1), random(300, 1000));
     timerQueue.push(&t);
   }
-
 
   manager.loadNextTimer();
   manager.start();
@@ -79,5 +80,5 @@ void loop()
   currentMillis = millis();
   getSensorInput();
   manager.update();
-  screen.update(manager.getCurrentTimer(), &iterateNextInQueue);
+  screen.update();
 }

@@ -55,6 +55,7 @@ void getSensorInput()
   static unsigned long previousSensorMillis = 0;
 
   uint8_t touched = cap.touched();
+  uint8_t touchedPrev = 0;
 
   if (currentMillis - previousSensorMillis >= sensorIntervalInMS)
   {
@@ -62,22 +63,24 @@ void getSensorInput()
     previousSensorMillis = currentMillis;
 
     // No touch bits set, bail
-    if (touched == 0)
-    {
+    if (!touched || touched == touchedPrev){
       return;
     }
 
-    for (uint8_t i = 0; i < 8; i++)
-    {
-      sensorDeltas[i] = cap.readRegister(0x10 + i);
-      /*       if (touched & (1 << i)) */
+    touchedPrev = touched;
+    debug(touched);
+    
+    // for (uint8_t i = 0; i < 8; i++)
+    // {
+    //   sensorDeltas[i] = cap.readRegister(0x10 + i);
+    //   /*       if (touched & (1 << i)) */
 
-      debug(sensorDeltas[i]);
-      if (i < 7)
-      {
-        debug(" | ");
-      }
-    }
-    debugln();
+    //   debug(sensorDeltas[i]);
+    //   if (i < 7)
+    //   {
+    //     debug(" | ");
+    //   }
+    // }
+    // debugln();
   }
 }

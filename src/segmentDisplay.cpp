@@ -29,7 +29,7 @@ void SegmentDisplay::setManager(TimerManager* const m){
   void SegmentDisplay::update(bool forceUpdate = false)
   {
 
-    if (manager->isExpired())
+    if (!manager->isExpired())
     {
       if ((currentMillis - updatedAt >= oneSecondInMS) || forceUpdate)
       {

@@ -115,7 +115,7 @@ class TockTimer{
 
 
   double getElapsedPercentage(){
-    return (initialTimeInMS - remainingTimeInMS) / initialTimeInMS;
+    return ((double)(initialTimeInMS - remainingTimeInMS) / initialTimeInMS) * 100;
   }
 
 };

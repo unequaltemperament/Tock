@@ -1,6 +1,7 @@
 #include "screen.h"
 #include "manager.h"
 
+
 Screen::Screen(int8_t cs, int8_t dc, int8_t rst, int8_t lite)
     : Adafruit_ST7789(cs, dc, rst)
 {
@@ -98,7 +99,7 @@ void Screen::drawSplash()
 #endif
 }
 
-void Screen::update(TockTimer* const cT, int (*func)(TockTimer *t))
+void Screen::update()
 {
     TockTimer buffer;
     const char queued[] = {"Coming Up:"};
@@ -120,7 +121,7 @@ void Screen::update(TockTimer* const cT, int (*func)(TockTimer *t))
 
         cursorY = 95;
 
-        int result = func(&buffer);
+        int result = iterateNextInQueue(&buffer);
 
         // TODO: better handling of flagging screen needing redraw
         dirty = static_cast<bool>(result);
@@ -138,7 +139,7 @@ void Screen::update(TockTimer* const cT, int (*func)(TockTimer *t))
             // debug(" for ");
             // debugln(buffer.initialTimeInMS/1000);
             // debugln(result);
-            result = func(&buffer);
+            result = iterateNextInQueue(&buffer);
         }
     }
 }

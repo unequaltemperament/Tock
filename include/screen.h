@@ -11,6 +11,7 @@
 #define BOOT_FADE_IN_TIME_MS 2000
 
 class TimerManager;
+int iterateNextInQueue(TockTimer *buf);
 
 class Screen : public Adafruit_ST7789
 {
@@ -35,7 +36,7 @@ public:
     void disable();
     void init();
     void drawSplash();
-    void update(TockTimer* const cT, int (*func)(TockTimer *t));
+    void update();
 
 private:
     int idx = 0;

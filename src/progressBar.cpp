@@ -25,12 +25,10 @@ void ProgressBar::update(bool forceUpdate = false)
         }
         // TODO: get rid of this modff
         // TODO: (HANDLED?)
+        double elapsedPercentage = manager->getElapsedPercentage() / 100;
 
-        double elapsedPercentage = manager->getElapsedPercentage();
-
-        double partialLEDPercentage = elapsedPercentage - static_cast<int>(elapsedPercentage);
         int fullLEDs = elapsedPercentage * _num_leds;
-
+        double partialLEDPercentage = (elapsedPercentage * _num_leds) - fullLEDs;        
 
         /*float fullLEDsInt;
         float partial = modff(((float)currentTimer.remainingTimeInMS * _num_leds / currentTimer.initialTimeInMS), &fullLEDsInt);
@@ -52,8 +50,9 @@ void ProgressBar::update(bool forceUpdate = false)
 
         if (fullLEDs < _num_leds && partialLEDPercentage > 0)
         {
+
             setPixelColor(getMappedLED(fullLEDs), getDimmedColor(TimerColor[manager->getStatus()], /* 1 - */ partialLEDPercentage));
-        }
+        }   
         show();
     }
 }
@@ -79,6 +78,9 @@ void ProgressBar::forceUpdate()
 int ProgressBar::getMappedLED(int realID)
 {
     realID = _num_leds - realID - 1;
+    if(lightFromWiredEnd){
+       realID = _num_leds - realID; 
+    }  
     return (realID % 2 == 0) ? (realID / 2) : (_num_leds - (realID / 2) - 1);
 }
 

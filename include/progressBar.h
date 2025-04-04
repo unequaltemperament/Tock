@@ -18,7 +18,7 @@ public:
   int _num_leds;
   unsigned long updatedAt = 0;
   unsigned long lightIntervalInMs = 0;
-  const int partialSteps = 64;
+  const int partialSteps = 128;
   TimerManager* manager = nullptr;
 
   void update(bool forceUpdate = false);
@@ -28,6 +28,7 @@ public:
   void setManager(TimerManager* const manager);
 
 private:
+  bool lightFromWiredEnd = 1;
   int getMappedLED(int realID);
   uint32_t getDimmedColor(uint32_t color, float dimPercentage);
 };

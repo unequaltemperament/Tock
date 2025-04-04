@@ -17,7 +17,7 @@ private:
     ProgressBar &progressBar;
     Screen &screen;
     cppQueue &queue;
-    TockTimer *currentTimer;
+    TockTimer currentTimer;
 
     const unsigned long normalUpdateIntervalInMS = 1000;
     const unsigned long expireBlinkIntervalInMS = 420;
@@ -32,8 +32,8 @@ public:
     TimerManager(SegmentDisplay &seg, ProgressBar &prog, Screen &scr, cppQueue &q) : segmentDisplay(seg),
                                                                                      progressBar(prog),
                                                                                      screen(scr),
-                                                                                     queue(q),
-                                                                                     currentTimer(nullptr)
+                                                                                     queue(q)
+                                                                                     
     {
 
         segmentDisplay.setManager(this);
@@ -48,18 +48,18 @@ public:
 
     bool inline isExpired()
     {
-        return currentTimer->getElapsedPercentage() >= 1 &&
+        return currentTimer.getElapsedPercentage() >= 1 &&
                queue.isEmpty();
     }
 
     double inline getElapsedPercentage()
     {
-        return currentTimer->getElapsedPercentage();
+        return currentTimer.getElapsedPercentage();
     }
 
     TimerStatus inline getStatus()
     {
-        return currentTimer->status;
+        return currentTimer.status;
     };
 
     long inline getTimerColor(){
@@ -68,17 +68,17 @@ public:
 
     long inline getRemainingTime()
     {
-        return currentTimer->remainingTimeInMS;
+        return currentTimer.remainingTimeInMS;
     }
 
-    bool inline loadNextTimer(){
-        queue.pop(currentTimer);
+    void inline loadNextTimer(){
+        queue.pop(&currentTimer);
         segmentDisplay.updatedAt = currentMillis;
         progressBar.updatedAt = currentMillis;
         segmentDisplay.forceUpdate();
         progressBar.forceUpdate();
 
-        progressBar.lightIntervalInMs = (currentTimer->initialTimeInMS / progressBar._num_leds) / progressBar.partialSteps;
+        progressBar.lightIntervalInMs = (currentTimer.initialTimeInMS / progressBar._num_leds) / progressBar.partialSteps;
     }
 
     void start(){
@@ -97,7 +97,7 @@ public:
     }
 
     TockTimer* const getCurrentTimer(){
-        return currentTimer;
+        return &currentTimer;
     }
 };
 
