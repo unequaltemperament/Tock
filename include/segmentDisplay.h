@@ -14,16 +14,15 @@ class SegmentDisplay : public RGBDigit
 {
 
 public:
-
-  SegmentDisplay(int numDigits, int digitsPin);
-  
   int _numDigits;
   unsigned long updatedAt = 0;
   const unsigned long normalUpdateIntervalInMS = 1000;
   const unsigned long expireBlinkIntervalInMS = 420;
-  TimerManager* manager = nullptr;
+  TimerManager *manager = nullptr;
 
-  void setManager(TimerManager* const m);
+  SegmentDisplay(int numDigits, int digitsPin);
+
+  void setManager(TimerManager *const m);
 
   char digitStringBuffer[6] = {};
 
@@ -35,10 +34,7 @@ public:
 
   void forceUpdate();
 
-  void expireBlink(unsigned long currentMillis);
-
-// private:
-//  long roundUp(long numToRound, long multiple);
+  void expireBlink();
 };
 
-#endif //header guard
+#endif // header guard

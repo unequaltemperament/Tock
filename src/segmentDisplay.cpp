@@ -1,105 +1,97 @@
 #include "segmentDisplay.h"
 #include "manager.h"
 
-void SegmentDisplay::setManager(TimerManager* const m){
+SegmentDisplay::SegmentDisplay(int numDigits, int digitsPin)
+    : RGBDigit(numDigits, digitsPin)
+{
+  _numDigits = numDigits;
+}
+
+void SegmentDisplay::setManager(TimerManager *const m)
+{
   manager = m;
 }
 
-  SegmentDisplay::SegmentDisplay(int numDigits, int digitsPin)
-      : RGBDigit(numDigits, digitsPin)
-  {
-    _numDigits = numDigits;
-  }
+void SegmentDisplay::formatOutputText(unsigned long b)
+{
+  // Serial.print("format: ");
+  // Serial.print(b);
+  // Serial.print(", ");
+  // Serial.println(b/1000);
+  snprintf(digitStringBuffer, _numDigits + 1, "%05lu", b / 1000);
+}
 
-  void SegmentDisplay::formatOutputText(unsigned long b)
-  {
-    // Serial.print("format: ");
-    // Serial.print(b);
-    // Serial.print(", ");
-    // Serial.println(b/1000);
-    snprintf(digitStringBuffer, _numDigits + 1, "%05lu", b / 1000);
-  }
+void SegmentDisplay::drawBuffertoDigits(unsigned long b)
+{
+  formatOutputText(b);
+  setText(digitStringBuffer, 0, _numDigits, TimerColor[manager->getStatus()]);
+}
 
-  void SegmentDisplay::drawBuffertoDigits(unsigned long b)
-  {
-    formatOutputText(b);
-    setText(digitStringBuffer, 0, _numDigits, TimerColor[manager->getStatus()]);
-  }
+void SegmentDisplay::update(bool forceUpdate = false)
+{
 
-  void SegmentDisplay::update(bool forceUpdate = false)
+  if ((currentMillis - updatedAt >= oneSecondInMS) || forceUpdate)
   {
+    debug(manager->getRemainingTime());
+    debug(" | ");
 
-    if (!manager->isExpired())
+    // millis() occasionally skips a number due to prescaler reasons
+    // but has a built-in adjustment to keep it in sync
+    // This should keep us with the proper display so long as we don't manage to be 500ms off
+    // which would mean much larger problems anway.
+    double drawTime = round(manager->getRemainingTime() / oneSecondInMS) * oneSecondInMS;
+    debugln((int)drawTime);
+    drawBuffertoDigits(drawTime);
+    if (manager->getRemainingTime() < 0)
     {
-      if ((currentMillis - updatedAt >= oneSecondInMS) || forceUpdate)
-      {
-        drawBuffertoDigits(manager->getRemainingTime());
-        if (!forceUpdate)
-        {
-          updatedAt = currentMillis;
-        }
-      };
+      debugln(manager->getElapsedPercentageNormalized());
+      while (1)
+        ;
+    }
+    if (!forceUpdate)
+    {
+      updatedAt = currentMillis;
+    }
+  };
+};
+
+void SegmentDisplay::forceUpdate()
+{
+  update(true);
+};
+
+void SegmentDisplay::expireBlink()
+{
+
+  static unsigned long expireBlinkAt = currentMillis;
+
+  //TODO: Yeah but what about when we hit a second expiration?
+  static bool expireLEDBlinkOn = [this]()
+  {
+    clearDot(2);
+    drawBuffertoDigits(0);
+
+    return true;
+  }();
+  // NOTE: pretty sure we don't need this unless we want to show some kind
+  // of custom display on expiration, but for now I think this is a good default
+
+  // const char expireZeros[6] = "00000";
+
+  if (currentMillis - expireBlinkAt >= expireBlinkIntervalInMS)
+  {
+    expireLEDBlinkOn = !expireLEDBlinkOn;
+    expireBlinkAt = currentMillis;
+    if (expireLEDBlinkOn)
+    {
+
+      // in case we were doing "10 second hurry up"
+      clearDot(2);
+      drawBuffertoDigits(0);
     }
     else
     {
-      expireBlink(currentMillis);
-    };
+      clearAll();
+    }
   }
-
-  void SegmentDisplay::forceUpdate()
-  {
-    update(true);
-  };
-
-  void SegmentDisplay::expireBlink(unsigned long currentMillis)
-  {
-    // static unsigned long expireBlinkAt;
-    // static bool expireLEDBlinkOn = false;
-    // manager.currentTimer = TockTimer(EXPIRE, 0);
-    // // NOTE: pretty sure we don't need this unless we want to show some kind
-    // // of custom display on expiration, but for now I think this is a good default
-
-    // // const char expireZeros[6] = "00000";
-
-    // if (currentMillis - expireBlinkAt >= expireBlinkIntervalInMS)
-    // {
-    //   expireLEDBlinkOn = !expireLEDBlinkOn;
-    //   expireBlinkAt = currentMillis;
-    //   if (expireLEDBlinkOn)
-    //   {
-
-    //     // in case we were doing "10 second hurry up"
-    //     clearDot(2);
-
-    //     drawBuffertoDigits(0);
-
-    //     // TODO: this doesn't belong here
-    //     progressBar->fill(TimerColor[EXPIRE], 0, progressBar->_num_leds);
-    //     progressBar->show();
-    //   }
-    //   else
-    //   {
-    //     clearAll();
-
-    //     // TODO: this doesn't belong here
-    //     progressBar->clear();
-    //     progressBar->show();
-    //   }
-    // }
-  }
-
-// private:
-//   long SegmentDisplay::roundUp(long numToRound, long multiple)
-//   {
-//     if (multiple == 0)
-//       return numToRound;
-
-//     long remainder = abs(numToRound) % multiple;
-//     if (remainder == 0)
-//       return numToRound;
-
-//     if (numToRound < 0)
-//       return -(abs(numToRound) - remainder);
-//     else
-//       return numToRound + multiple - remainder;
-//   }
+}

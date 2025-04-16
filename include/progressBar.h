@@ -19,18 +19,19 @@ public:
   unsigned long updatedAt = 0;
   unsigned long lightIntervalInMs = 0;
   const int partialSteps = 128;
-  TimerManager* manager = nullptr;
+  TimerManager *manager = nullptr;
 
   void update(bool forceUpdate = false);
 
   void forceUpdate();
-
-  void setManager(TimerManager* const manager);
+  void expireBlink();
+  void setManager(TimerManager *const manager);
 
 private:
   bool lightFromWiredEnd = 1;
+  const unsigned long expireBlinkIntervalInMS = 420;
   int getMappedLED(int realID);
   uint32_t getDimmedColor(uint32_t color, float dimPercentage);
 };
 
-#endif //header guard
+#endif // header guard

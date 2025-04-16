@@ -9,9 +9,9 @@
 #include "screen.h"
 #include "sensors.h"
 
-constexpr char NUM_LEDS= 36;
-constexpr char NUM_DIGITS= 5;
-constexpr char QUEUE_MAX_SIZE= 10;
+constexpr char NUM_LEDS = 36;
+constexpr char NUM_DIGITS = 5;
+constexpr char QUEUE_MAX_SIZE = 10;
 
 unsigned long currentMillis;
 
@@ -20,7 +20,7 @@ ProgressBar progressBar(NUM_LEDS, LED_PIN);
 SegmentDisplay segmentDisplay(NUM_DIGITS, DIGITS_PIN);
 Screen screen(TFT_CS, TFT_DC, TFT_RST, TFT_LITE);
 Adafruit_CAP1188 cap(CAP_RST);
-TimerManager manager(segmentDisplay,progressBar,screen,timerQueue);
+TimerManager manager(segmentDisplay, progressBar, screen, timerQueue);
 
 TockTimer generateTockTimer(TimerStatus status = WORK, long initialTimeInSeconds = 3600)
 {
@@ -56,18 +56,21 @@ void setup()
   progressBar.show();  // Turn OFF all pixels ASAP
   progressBar.setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS * .25);
 
-  screen.enabled=false;
+  screen.enabled = false;
   screen.init();
   initSensors();
 
+  timerQueue.flush(); // here now in case we wrap this in some kind of reset function later
+
+  // Force first timer to be a reasonable value
+  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 10));
+  
   // dummy testing data
-  timerQueue.flush(); //here now in case we wrap this in some kind of reset function later
-  timerQueue.push(&generateTockTimer(TimerStatus::WORK,NUM_LEDS*2));
-  for (int i = 1; i < QUEUE_MAX_SIZE; i++)
-  {
-    TockTimer t = generateTockTimer(static_cast<TimerStatus>((i % 2) + 1), random(300, 1000));
-    timerQueue.push(&t);
-  }
+  // for (int i = 1; i < QUEUE_MAX_SIZE; i++)
+  // {
+  //   TockTimer t = generateTockTimer(static_cast<TimerStatus>((i % 2) + 1), random(300, 1000));
+  //   timerQueue.push(&t);
+  // }
 
   manager.loadNextTimer();
   manager.start();

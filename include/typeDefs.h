@@ -89,14 +89,15 @@ inline int config_2_default = 0x40; // 0b01000000
 
 enum TimerStatus
 {
+  STOPPED,
   EXPIRE,
   WORK,
   BREAK
 };
 
-inline char statusType[][8] = {"expired", " work", "break"};
+inline char statusType[][8] = {"stopped","expired", " work", "break"};
 
-inline long TimerColor[] = {0xFF0000, 0xD9FF00, 0x2AE600};
+inline long TimerColor[] = {0,0xFF0000, 0xD9FF00, 0x2AE600};
 
 class TockTimer{
 
@@ -114,8 +115,8 @@ class TockTimer{
   }
 
 
-  double getElapsedPercentage(){
-    return ((double)(initialTimeInMS - remainingTimeInMS) / initialTimeInMS) * 100;
+  double getElapsedPercentageNormalized(){
+    return ((double)(initialTimeInMS - remainingTimeInMS) / initialTimeInMS);
   }
 
 };
