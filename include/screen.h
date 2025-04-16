@@ -41,10 +41,12 @@ public:
 private:
     int idx = 0;
     //TODO: this is all stuff that should probably be in the Bitmap class
-    unsigned int getNextChunk(byte numBytes = 2, const byte* data = splashImage.data);
-    void drawPixel(unsigned int color);
-    void drawHighPixel(unsigned int colorByte);
-    void drawLowPixel(unsigned int colorByte);
+    uint16_t getNextChunk(byte numBytes = 2, const byte* data = splashImage.data);
+    void drawPixel(uint16_t color);
+    void drawHighPixel(uint16_t colorByte);
+    void drawLowPixel(uint16_t colorByte);
     void draw4BitBitmap(const Bitmap &bmp);
+
+    uint16_t RGB888toRGB565(long color);
 };
 #endif //header guard

@@ -95,7 +95,7 @@ enum TimerStatus
   BREAK
 };
 
-inline char statusType[][8] = {"stopped","expired", " work", "break"};
+inline char statusType[][8] = {"stopped","expired", "work", "break"};
 
 inline long TimerColor[] = {0,0xFF0000, 0xD9FF00, 0x2AE600};
 

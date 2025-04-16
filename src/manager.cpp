@@ -2,13 +2,15 @@
 
 bool TimerManager::loadNextTimer()
 {
-  if (!queue.pop(&currentTimer))
+  TockTimer *p = &currentTimer;
+  if (!queue.pop(p))
   {
-    TockTimer *p = &currentTimer;
     p = nullptr;
     return false;
   };
+  progressBar.clear();
   progressBar.lightIntervalInMs = currentTimer.initialTimeInMS / (progressBar._num_leds * progressBar.partialSteps);
+  screen.dirty = true;
   return true;
 }
 
@@ -32,23 +34,37 @@ void TimerManager::update()
   {
   case TimerStatus::STOPPED:
     break;
+
   case TimerStatus::WORK:
   case TimerStatus::BREAK:
     // fallthrough
+    currentTimer.remainingTimeInMS = currentTimer.initialTimeInMS - (currentMillis - startedAt);
+
     if (isExpired())
     {
       currentTimer.status = TimerStatus::EXPIRE;
       status = TimerStatus::EXPIRE;
       break;
     }
-    currentTimer.remainingTimeInMS = currentTimer.initialTimeInMS - (currentMillis - startedAt);
+
     segmentDisplay.update();
     progressBar.update();
 
     break;
+
   case TimerStatus::EXPIRE:
-    segmentDisplay.expireBlink();
-    progressBar.expireBlink();
+
+    if(!queue.isEmpty()){
+      if(loadNextTimer()){
+        start();
+      }
+      break;
+    }
+    else
+    {
+      segmentDisplay.expireBlink();
+      progressBar.expireBlink();
+    }
     break;
   }
 };

@@ -56,15 +56,21 @@ void setup()
   progressBar.show();  // Turn OFF all pixels ASAP
   progressBar.setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS * .25);
 
-  screen.enabled = false;
+  //screen.enabled = false;
   screen.init();
   initSensors();
 
   timerQueue.flush(); // here now in case we wrap this in some kind of reset function later
 
   // Force first timer to be a reasonable value
-  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 10));
-  
+  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
+  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
+  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
+  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
+  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
+  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
+  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
+  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
   // dummy testing data
   // for (int i = 1; i < QUEUE_MAX_SIZE; i++)
   // {

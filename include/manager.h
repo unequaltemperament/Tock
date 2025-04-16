@@ -51,8 +51,7 @@ public:
 
     bool inline isExpired()
     {
-        return currentTimer.getElapsedPercentageNormalized() >= 1 &&
-               queue.isEmpty();
+        return currentTimer.getElapsedPercentageNormalized() >= 1;
     }
 
     double inline getElapsedPercentageNormalized()
@@ -78,6 +77,10 @@ public:
     TockTimer *const getCurrentTimer()
     {
         return &currentTimer;
+    }
+
+    bool inline isQueueEmpty(){
+        return queue.isEmpty();
     }
 };
 

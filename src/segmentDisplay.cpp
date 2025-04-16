@@ -32,15 +32,11 @@ void SegmentDisplay::update(bool forceUpdate = false)
 
   if ((currentMillis - updatedAt >= oneSecondInMS) || forceUpdate)
   {
-    debug(manager->getRemainingTime());
-    debug(" | ");
-
     // millis() occasionally skips a number due to prescaler reasons
     // but has a built-in adjustment to keep it in sync
     // This should keep us with the proper display so long as we don't manage to be 500ms off
     // which would mean much larger problems anway.
-    double drawTime = round(manager->getRemainingTime() / oneSecondInMS) * oneSecondInMS;
-    debugln((int)drawTime);
+    long drawTime = lround((double)manager->getRemainingTime() / oneSecondInMS) * oneSecondInMS;
     drawBuffertoDigits(drawTime);
     if (manager->getRemainingTime() < 0)
     {
