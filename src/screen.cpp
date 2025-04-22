@@ -91,6 +91,11 @@ void Screen::drawSplash()
 
 void Screen::update()
 {
+    if(!enabled)
+    {
+        return;
+    }
+    
     if (dirty)
     {
         dirty = false;
