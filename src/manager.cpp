@@ -44,6 +44,7 @@ void TimerManager::update()
     {
       currentTimer.status = TimerStatus::EXPIRE;
       status = TimerStatus::EXPIRE;
+      screen.dirty = true;
       break;
     }
 

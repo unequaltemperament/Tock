@@ -1,5 +1,6 @@
 #include "screen.h"
 #include "manager.h"
+#include "strings.h"
 
 Screen::Screen(int8_t cs, int8_t dc, int8_t rst, int8_t lite)
     : Adafruit_ST7789(cs, dc, rst)
@@ -53,20 +54,10 @@ void Screen::init()
     // }
     analogWrite(LITE_PIN, MAX_BACKLIGHT_BRIGHTNESS);
 
-     drawSplash();
-     delay(1200);
+    //  drawSplash();
+    //  delay(1200);
+    mode = QUEUE;
 
-    // TODO: the rest of this should go in the update loop
-    fillScreen(0x00);
-    setTextColor(0xFFFF);
-    setTextSize(2);
-
-    char title[] = {"Current:"};
-
-    getTextBounds(title, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
-    setCursor(120 - (textBoundW / 2), 5);
-    print(title);
-    
 }
 
 void Screen::drawSplash()
@@ -97,52 +88,13 @@ void Screen::drawSplash()
 #endif
 }
 
-//TODO: clearing old data is BROKEN
+
 void Screen::update()
 {
-    TockTimer buffer;
-    const char queued[] = {"Coming Up:"};
     if (dirty)
     {
-        int cursorY = 30;
-        //debugln(TimerColor[manager->getStatus()], HEX);
-        setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x0000);
-        setCursor(15, cursorY);
-
-        // TODO: faster to combine these to one call?
-        print(statusType[manager->getStatus()]);
-        print(" for ");
-        print(manager->getCurrentTimer()->initialTimeInMS / 1000);
-        fillRect(getCursorX(), getCursorY(), width() - getCursorX(), height() - getCursorY(), 0x0000);
-
-        if (!manager->isQueueEmpty())
-        {
-            getTextBounds(queued, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
-            setTextColor(0xFFFF);
-            setCursor(120 - (textBoundW / 2), 70);
-            print(queued);
-
-            cursorY = 95;
-            int result = iterateNextInQueue(&buffer);
-
-            // TODO: better handling of flagging screen needing redraw
-            while (result)
-            {
-                long curColor = TimerColor[buffer.status];
-                curColor = RGB888toRGB565(curColor);
-                setTextColor(curColor, 0x0000);
-                setCursor(15, cursorY);
-                print(statusType[buffer.status]);
-                print(" for ");
-                print(buffer.initialTimeInMS / 1000);
-
-                cursorY += 25 - textsize_y;
-                result = iterateNextInQueue(&buffer);
-            }
-        }
-            //blank out the rest of the screen
-            fillRect(0, cursor_y, width(), height() - cursor_y, 0x0000);
         dirty = false;
+        (this->*fps[mode])();
     }
 }
 
@@ -153,21 +105,23 @@ void Screen::update()
 // reason to move it and remove a parameter.
 // Attaching to the bitmap lets each image handle its own indexing
 // TODO: also do we need out-of-bounds checking
+// TODO: also also should validate numBytes
 uint16_t Screen::getNextChunk(byte numBytes, const byte *data)
 {
     uint16_t ret;
-    if (numBytes == 1)
+    switch (numBytes)
     {
+    case 1:
         ret = pgm_read_byte(data + idx);
         idx++;
-    }
-    else
-    {
+        break;
+    case 2:
         ret = pgm_read_word(data + idx);
         // Little-endian, swap the bytes around
         // so our consumer always gets the individual bytes in order
         ret = (ret >> 8) | (ret << 8);
         idx += 2;
+        break;
     }
 
     return ret;
@@ -281,6 +235,69 @@ void Screen::draw4BitBitmap(const Bitmap &bmp)
         }
     }
 };
+
+void Screen::displayQueue(){
+
+    fillScreen(0x00);
+    setTextColor(0xFFFF);
+    setTextSize(2);
+
+    char title[] = {"Current:"};
+
+    getTextBounds(title, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+    setCursor(120 - (textBoundW / 2), 5);
+    print(title);
+
+    if (manager->isQueueEmpty())
+    {
+        getTextBounds(strings::timeup, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+        setCursor(width() / 2 - (textBoundW / 2), height() / 2 - (textBoundH / 2));
+        setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x0000);
+        fillScreen(0x00);
+        print(strings::timeup);
+        return;
+    }
+
+    int cursorY = 30;
+    setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x0000);
+    setCursor(15, cursorY);
+
+    // TODO: faster to combine these to one call?
+    print(statusType[manager->getStatus()]);
+    print(" for ");
+    print(manager->getCurrentTimer()->initialTimeInMS / 1000);
+    fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, 0x0000);
+
+    TockTimer buffer;
+    int result = iterateNextInQueue(&buffer);
+    if (result)
+    {
+        getTextBounds(strings::queued, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+        setTextColor(0xFFFF);
+        setCursor(120 - (textBoundW / 2), 70);
+        print(strings::queued);
+        cursorY = 95;
+        
+        while (result)
+        {
+            long curColor = TimerColor[buffer.status];
+            curColor = RGB888toRGB565(curColor);
+            setTextColor(curColor, 0x0000);
+            setCursor(15, cursorY);
+            print(statusType[buffer.status]);
+            print(" for ");
+            print(buffer.initialTimeInMS / 1000);
+
+            //blank out the rest of the line
+            fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, 0x0000);
+
+            cursorY += 25 - textsize_y;
+            result = iterateNextInQueue(&buffer);
+        }
+    }
+    // blank out the rest of the screen
+    fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, 0x0000);
+}
 
 uint16_t Screen::RGB888toRGB565(long color)
 {

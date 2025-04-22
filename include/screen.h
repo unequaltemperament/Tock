@@ -10,6 +10,10 @@
 #define MAX_BACKLIGHT_BRIGHTNESS 127
 #define BOOT_FADE_IN_TIME_MS 2000
 
+class Screen;
+
+typedef void (Screen::*FunctionPointer)();
+
 class TimerManager;
 int iterateNextInQueue(TockTimer *buf);
 
@@ -23,14 +27,14 @@ public:
     int8_t LITE_PIN;
 
     // storage variables for getTextBounds()
-    int16_t textBoundX = 0, 
+    int16_t textBoundX = 0,
             textBoundY = 0;
-    uint16_t textBoundW = 0, 
+    uint16_t textBoundW = 0,
              textBoundH = 0;
 
-    TimerManager* manager = nullptr;
+    TimerManager *manager = nullptr;
 
-    void setManager(TimerManager* const m);
+    void setManager(TimerManager *const m);
 
     void enable();
     void disable();
@@ -39,14 +43,33 @@ public:
     void update();
 
 private:
+
+    enum Mode
+    {
+        SPLASH,
+        QUEUE,
+        MENU
+    };
+
+    Mode mode = SPLASH;
+
     int idx = 0;
-    //TODO: this is all stuff that should probably be in the Bitmap class
-    uint16_t getNextChunk(byte numBytes = 2, const byte* data = splashImage.data);
+
+    FunctionPointer fps[2] = {
+        &drawSplash,
+        &displayQueue
+    };
+
+    // TODO: this is all stuff that should probably be in the Bitmap class
+    uint16_t getNextChunk(byte numBytes = 2, const byte *data = splashImage.data);
     void drawPixel(uint16_t color);
     void drawHighPixel(uint16_t colorByte);
     void drawLowPixel(uint16_t colorByte);
     void draw4BitBitmap(const Bitmap &bmp);
+    void displayQueue();
+
+    
 
     uint16_t RGB888toRGB565(long color);
 };
-#endif //header guard
+#endif // header guard

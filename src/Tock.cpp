@@ -65,12 +65,12 @@ void setup()
   // Force first timer to be a reasonable value
   timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
   timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
-  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
-  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
-  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
-  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
-  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
-  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
+  // timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
+  // timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
+  // timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
+  // timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
+  // timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
+  // timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
   // dummy testing data
   // for (int i = 1; i < QUEUE_MAX_SIZE; i++)
   // {

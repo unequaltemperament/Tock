@@ -36,18 +36,18 @@ void initSensors()
       ;
   }
 
-  debugln("CAP1188 found!");
+   debugln("CAP1188 found!");
 
-  debug("repeat rate enable: ");
-  debugln(cap.readRegister(repeat_rate_enable_register));
-  debug("sensitivity control: ");
-  debugln(cap.readRegister(sensitivity_control_register));
-  debug("input config: ");
-  debugln(cap.readRegister(sensor_input_config_register));
-  debug("input config 2: ");
-  debugln(cap.readRegister(sensor_input_config_2_register));
-  debug("config 2: ");
-  debugln(cap.readRegister(config_2_register));
+  // debug("repeat rate enable: ");
+  // debugln(cap.readRegister(repeat_rate_enable_register));
+  // debug("sensitivity control: ");
+  // debugln(cap.readRegister(sensitivity_control_register));
+  // debug("input config: ");
+  // debugln(cap.readRegister(sensor_input_config_register));
+  // debug("input config 2: ");
+  // debugln(cap.readRegister(sensor_input_config_2_register));
+  // debug("config 2: ");
+  // debugln(cap.readRegister(config_2_register));
 }
 
 void getSensorInput()

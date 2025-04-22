@@ -38,12 +38,7 @@ void SegmentDisplay::update(bool forceUpdate = false)
     // which would mean much larger problems anway.
     long drawTime = lround((double)manager->getRemainingTime() / oneSecondInMS) * oneSecondInMS;
     drawBuffertoDigits(drawTime);
-    if (manager->getRemainingTime() < 0)
-    {
-      debugln(manager->getElapsedPercentageNormalized());
-      while (1)
-        ;
-    }
+
     if (!forceUpdate)
     {
       updatedAt = currentMillis;
