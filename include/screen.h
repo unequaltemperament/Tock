@@ -11,10 +11,8 @@
 #define BOOT_FADE_IN_TIME_MS 2000
 
 class Screen;
-
-typedef void (Screen::*FunctionPointer)();
-
 class TimerManager;
+typedef void (Screen::*FunctionPointer)();
 int iterateNextInQueue(TockTimer *buf);
 
 class Screen : public Adafruit_ST7789

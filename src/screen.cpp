@@ -95,7 +95,7 @@ void Screen::update()
     {
         return;
     }
-    
+
     if (dirty)
     {
         dirty = false;
@@ -256,15 +256,15 @@ void Screen::displayQueue(){
     if (manager->isQueueEmpty())
     {
         getTextBounds(strings::timeup, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
-        setCursor(width() / 2 - (textBoundW / 2), height() / 2 - (textBoundH / 2));
-        setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x0000);
+        setCursor((width() - textBoundW) / 2, (height() / 2 - textBoundH) / 2);
+        setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x00);
         fillScreen(0x00);
         print(strings::timeup);
         return;
     }
 
     int cursorY = 30;
-    setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x0000);
+    setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x00);
     setCursor(15, cursorY);
 
     // TODO: faster to combine these to one call?
@@ -287,21 +287,21 @@ void Screen::displayQueue(){
         {
             long curColor = TimerColor[buffer.status];
             curColor = RGB888toRGB565(curColor);
-            setTextColor(curColor, 0x0000);
+            setTextColor(curColor, 0x00);
             setCursor(15, cursorY);
             print(statusType[buffer.status]);
             print(" for ");
             print(buffer.initialTimeInMS / 1000);
 
             //blank out the rest of the line
-            fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, 0x0000);
+            fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, 0x00);
 
             cursorY += 25 - textsize_y;
             result = iterateNextInQueue(&buffer);
         }
     }
-    // blank out the rest of the screen
-    fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, 0x0000);
+    // blank out the rest of the screen, clipping handled automatically
+    fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, 0x00);
 }
 
 uint16_t Screen::RGB888toRGB565(long color)
