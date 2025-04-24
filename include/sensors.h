@@ -6,7 +6,7 @@
 #include "typeDefs.h"
 #include <Adafruit_CAP1188.h>
 
-extern int8_t sensorDeltas[9];
+extern uint8_t touched;
 extern unsigned long currentMillis;
 extern Adafruit_CAP1188 cap;
 

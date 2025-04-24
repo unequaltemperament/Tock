@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include "sensors.h"
 
-int8_t sensorDeltas[9] = {};
+int8_t sensorDeltas[8] = {};
+uint8_t touched = 0;
 
 void initSensors()
 {
@@ -54,8 +55,8 @@ void getSensorInput()
 {
   static unsigned long previousSensorMillis = 0;
 
-  uint8_t touched = cap.touched();
-  uint8_t touchedPrev = 0;
+  touched = cap.touched();
+  static uint8_t touchedPrev = 0;
 
   if (currentMillis - previousSensorMillis >= sensorIntervalInMS)
   {

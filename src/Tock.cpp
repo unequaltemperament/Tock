@@ -48,13 +48,13 @@ void setup()
   debugln("--------Everything above this line is garbage on reset--------");
 #endif
 
-  segmentDisplay.begin();
-  segmentDisplay.clearAll();
-  segmentDisplay.setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS);
+  // segmentDisplay.begin();
+  // segmentDisplay.clearAll();
+  // segmentDisplay.setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS);
 
-  progressBar.begin(); // INITIALIZE NeoPixel progressBar.updatedAt object (REQUIRED)
-  progressBar.show();  // Turn OFF all pixels ASAP
-  progressBar.setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS * .25);
+  // progressBar.begin(); // INITIALIZE NeoPixel progressBar.updatedAt object (REQUIRED)
+  // progressBar.show();  // Turn OFF all pixels ASAP
+  // progressBar.setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS * .25);
 
   //screen.enabled = false;
   screen.init();
@@ -78,8 +78,8 @@ void setup()
   //   timerQueue.push(&t);
   // }
 
-  manager.loadNextTimer();
-  manager.start();
+  // manager.loadNextTimer();
+  // manager.start();
   debug(millis());
   debugln(": End of setup, entering loop");
 }
@@ -88,6 +88,6 @@ void loop()
 {
   currentMillis = millis();
   getSensorInput();
-  manager.update();
+  //manager.update();
   screen.update();
 }

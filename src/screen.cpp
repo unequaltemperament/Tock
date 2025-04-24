@@ -56,7 +56,17 @@ void Screen::init()
 
     //  drawSplash();
     //  delay(1200);
-    mode = QUEUE;
+    mode = BUTTON_TEST;
+    dirty=true;
+    setTextColor(0xFFFF);
+    fillScreen(0x00);
+    setTextSize(3);
+    getTextBounds("1",0,0,&textBoundX,&textBoundY,&textBoundW,&textBoundH);
+    for(int i=0; i<8; i++){
+        print(i+1);
+        setCursor(0, (i+1)*textBoundH);
+    }
+    int bottomBoxTop = getCursorY();
 
 }
 
@@ -88,19 +98,18 @@ void Screen::drawSplash()
 #endif
 }
 
-
 void Screen::update()
 {
-    if(!enabled)
+    if (!enabled)
     {
         return;
     }
 
-    if (dirty)
-    {
-        dirty = false;
+    // if (dirty)
+    // {
+    //     dirty = false;
         (this->*fps[mode])();
-    }
+    //}
 }
 
 // TODO: should this be attached to the bitmap instead?
@@ -241,7 +250,8 @@ void Screen::draw4BitBitmap(const Bitmap &bmp)
     }
 };
 
-void Screen::displayQueue(){
+void Screen::displayQueue()
+{
 
     fillScreen(0x00);
     setTextColor(0xFFFF);
@@ -282,7 +292,7 @@ void Screen::displayQueue(){
         setCursor(120 - (textBoundW / 2), 70);
         print(strings::queued);
         cursorY = 95;
-        
+
         while (result)
         {
             long curColor = TimerColor[buffer.status];
@@ -293,7 +303,7 @@ void Screen::displayQueue(){
             print(" for ");
             print(buffer.initialTimeInMS / 1000);
 
-            //blank out the rest of the line
+            // blank out the rest of the line
             fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, 0x00);
 
             cursorY += 25 - textsize_y;
@@ -302,6 +312,27 @@ void Screen::displayQueue(){
     }
     // blank out the rest of the screen, clipping handled automatically
     fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, 0x00);
+}
+
+void Screen::buttonTest(){
+
+    static uint8_t touchedPrev = 0;
+    static char buttonMap[] = {1,0,4,3,2,7,6,5};
+    if ( touched == touchedPrev)
+    {
+        return;
+    }         
+    
+    
+    for(int i = 0;i<8;i++){
+        //if it either is and was, or isn't and wasn't touched, we don't need to update it
+        //only if is and wasn't, or isn't and was
+        if((touched>>i & 1) ^ (touchedPrev>>i & 1)){
+            fillRect(textBoundW+5,buttonMap[i]*textBoundH,width(),textBoundH,0x77c0 * (touched>>i & 1));
+        }
+    }
+
+    touchedPrev = touched;
 }
 
 uint16_t Screen::RGB888toRGB565(long color)
