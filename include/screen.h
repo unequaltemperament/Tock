@@ -15,8 +15,6 @@ class TimerManager;
 typedef void (Screen::*FunctionPointer)();
 int iterateNextInQueue(TockTimer *buf);
 
-extern uint8_t touched;
-
 class Screen : public Adafruit_ST7789
 {
 public:
@@ -48,19 +46,16 @@ private:
     {
         SPLASH,
         QUEUE,
-        MENU,
-        BUTTON_TEST
+        MENU
     };
 
     Mode mode = SPLASH;
 
     int idx = 0;
 
-    FunctionPointer fps[4] = {
+    FunctionPointer fps[2] = {
         &drawSplash,
-        &displayQueue,
-        0,
-        &buttonTest,
+        &displayQueue
     };
 
     // TODO: this is all stuff that should probably be in the Bitmap class
@@ -70,7 +65,6 @@ private:
     void drawLowPixel(uint16_t colorByte);
     void draw4BitBitmap(const Bitmap &bmp);
     void displayQueue();
-    void buttonTest();
 
     
 

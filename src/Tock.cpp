@@ -88,6 +88,7 @@ void loop()
 {
   currentMillis = millis();
   getSensorInput();
-  //manager.update();
+  screen.dirty = processButtonQueue(timerQueue);
+  manager.update();
   screen.update();
 }
