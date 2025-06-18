@@ -13,6 +13,14 @@ void ProgressBar::setManager(TimerManager *const m)
     manager = m;
 };
 
+void ProgressBar::init()
+{
+  begin(); // INITIALIZE NeoPixel progressBar.updatedAt object (REQUIRED)
+  show();  // Turn OFF all pixels ASAP
+  setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS * .25);
+  enabled = true;
+}
+
 void ProgressBar::update(bool forceUpdate = false)
 {
     if (manager->getStatus()!=TimerStatus::EXPIRE)
@@ -28,6 +36,11 @@ void ProgressBar::update(bool forceUpdate = false)
 
             int fullLEDs = elapsedPercentage * _num_leds;
             double partialLEDPercentage = (elapsedPercentage * _num_leds) - fullLEDs;
+
+            debug("fullLEDs: ");
+            debugln(fullLEDs);
+            debug("partialLEDPercentage: ");
+            debugln(partialLEDPercentage);
 
             // NOTE: this sets the last full LED on every pass
             // Probably not a performance issue, but would rather note it now

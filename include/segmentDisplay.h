@@ -18,12 +18,14 @@ public:
   unsigned long updatedAt = 0;
   const unsigned long normalUpdateIntervalInMS = 1000;
   const unsigned long expireBlinkIntervalInMS = 420;
+  bool enabled = false;
   TimerManager *manager = nullptr;
 
   SegmentDisplay(int numDigits, int digitsPin);
 
   void setManager(TimerManager *const m);
 
+  void init();
   char digitStringBuffer[6] = {};
 
   void formatOutputText(unsigned long b);

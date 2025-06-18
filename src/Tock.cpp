@@ -14,6 +14,7 @@ constexpr char NUM_DIGITS = 5;
 constexpr char QUEUE_MAX_SIZE = 10;
 
 unsigned long currentMillis;
+extern bool sensorsEnabled;
 
 cppQueue timerQueue(sizeof(TockTimer), QUEUE_MAX_SIZE);
 ProgressBar progressBar(NUM_LEDS, LED_PIN);
@@ -48,14 +49,8 @@ void setup()
   debugln("--------Everything above this line is garbage on reset--------");
 #endif
 
-  // segmentDisplay.begin();
-  // segmentDisplay.clearAll();
-  // segmentDisplay.setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS);
-
-  // progressBar.begin(); // INITIALIZE NeoPixel progressBar.updatedAt object (REQUIRED)
-  // progressBar.show();  // Turn OFF all pixels ASAP
-  // progressBar.setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS * .25);
-
+  segmentDisplay.init();
+  progressBar.init();
   //screen.enabled = false;
   screen.init();
   initSensors();
@@ -63,8 +58,10 @@ void setup()
   timerQueue.flush(); // here now in case we wrap this in some kind of reset function later
 
   // Force first timer to be a reasonable value
-  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
-  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
+  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 36));
+  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 36));
+  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 36));
+  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 36));
   // timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
   // timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
   // timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
@@ -78,8 +75,25 @@ void setup()
   //   timerQueue.push(&t);
   // }
 
-  // manager.loadNextTimer();
-  // manager.start();
+  manager.loadNextTimer();
+  manager.start();
+  
+  //TODO: Screen update is slow.
+  // on new timer load, we lag about 250ms updating the progressbar, causing a jerky first LED
+  screen.update();
+
+  debugln("--------");
+  char initBuffer[20];
+  sprintf(initBuffer, "%-13s%s", "Digits",segmentDisplay.enabled? "enabled" : "DISABLED");
+  debugln(initBuffer);
+  sprintf(initBuffer, "%-13s%s", "ProgressBar",progressBar.enabled? "enabled" : "DISABLED");
+  debugln(initBuffer);
+  sprintf(initBuffer, "%-13s%s", "Screen",screen.enabled? "enabled" : "DISABLED");
+  debugln(initBuffer);
+  sprintf(initBuffer, "%-13s%s", "Sensors",sensorsEnabled? "enabled" : "DISABLED");
+  debugln(initBuffer);
+  debugln("--------");
+
   debug(millis());
   debugln(": End of setup, entering loop");
 }

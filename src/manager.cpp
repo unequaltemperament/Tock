@@ -20,9 +20,7 @@ void TimerManager::start()
   isRunning = true;
   status = currentTimer.status;
   startedAt = currentMillis;
-
-  segmentDisplay.updatedAt = currentMillis;
-  progressBar.updatedAt = currentMillis;
+  
   segmentDisplay.forceUpdate();
   progressBar.forceUpdate();
 }
@@ -40,12 +38,19 @@ void TimerManager::update()
     // fallthrough
     currentTimer.remainingTimeInMS = currentTimer.initialTimeInMS - (currentMillis - startedAt);
 
-    if (isExpired())
+    if (isElapsed())
     {
-      currentTimer.status = TimerStatus::EXPIRE;
-      status = TimerStatus::EXPIRE;
-      screen.dirty = true;
-      break;
+      if (loadNextTimer())
+      {
+        start();
+      }
+      else
+      {
+        currentTimer.status = TimerStatus::EXPIRE;
+        status = TimerStatus::EXPIRE;
+        screen.setMode(TimerStatus::EXPIRE);
+        break;
+      }
     }
 
     segmentDisplay.update();
@@ -54,18 +59,9 @@ void TimerManager::update()
     break;
 
   case TimerStatus::EXPIRE:
-
-    if(!queue.isEmpty()){
-      if(loadNextTimer()){
-        start();
-      }
-      break;
-    }
-    else
-    {
-      segmentDisplay.expireBlink();
-      progressBar.expireBlink();
-    }
+    
+    segmentDisplay.expireBlink();
+    progressBar.expireBlink();
     break;
   }
 };

@@ -39,13 +39,15 @@ public:
     void init();
     void drawSplash();
     void update();
-
+    void setMode(TimerStatus t);
+    
 private:
 
     enum Mode
     {
         SPLASH,
         QUEUE,
+        ELAPSED,
         MENU
     };
 
@@ -53,9 +55,10 @@ private:
 
     int idx = 0;
 
-    FunctionPointer fps[2] = {
+    FunctionPointer fps[3] = {
         &drawSplash,
-        &displayQueue
+        &displayQueue,
+        &displayElapsed
     };
 
     // TODO: this is all stuff that should probably be in the Bitmap class
@@ -64,7 +67,9 @@ private:
     void drawHighPixel(uint16_t colorByte);
     void drawLowPixel(uint16_t colorByte);
     void draw4BitBitmap(const Bitmap &bmp);
+
     void displayQueue();
+    void displayElapsed();
 
     
 

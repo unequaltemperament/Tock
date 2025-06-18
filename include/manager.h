@@ -49,14 +49,19 @@ public:
     }
     void update();
 
-    bool inline isExpired()
+    double inline getElapsedPercentageNormalized()
+    {
+        return currentTimer.getElapsedPercentageNormalized();
+    }
+
+    bool inline isElapsed()
     {
         return currentTimer.getElapsedPercentageNormalized() >= 1;
     }
 
-    double inline getElapsedPercentageNormalized()
+    bool inline isExpired()
     {
-        return currentTimer.getElapsedPercentageNormalized();
+        return isElapsed() && queue.isEmpty();
     }
 
     TimerStatus inline getStatus()

@@ -253,16 +253,6 @@ void Screen::displayQueue(){
     setCursor(120 - (textBoundW / 2), 5);
     print(title);
 
-    if (manager->isQueueEmpty())
-    {
-        getTextBounds(strings::timeup, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
-        setCursor((width() - textBoundW) / 2, (height() / 2 - textBoundH) / 2);
-        setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x00);
-        fillScreen(0x00);
-        print(strings::timeup);
-        return;
-    }
-
     int cursorY = 30;
     setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x00);
     setCursor(15, cursorY);
@@ -303,6 +293,28 @@ void Screen::displayQueue(){
     // blank out the rest of the screen, clipping handled automatically
     fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, 0x00);
 }
+
+void Screen::displayElapsed(){
+        getTextBounds(strings::timeup, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+        setCursor((width() - textBoundW) / 2, (height() / 2 - textBoundH) / 2);
+        setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x00);
+        fillScreen(0x00);
+        print(strings::timeup);
+        return;
+}
+
+void Screen::setMode(TimerStatus t)
+    {
+        if(t== TimerStatus::EXPIRE)
+        {
+            mode = ELAPSED;
+        }
+        else
+        {
+            mode = QUEUE;
+        }
+        dirty = true;
+    }
 
 uint16_t Screen::RGB888toRGB565(long color)
 {

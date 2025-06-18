@@ -12,6 +12,15 @@ void SegmentDisplay::setManager(TimerManager *const m)
   manager = m;
 }
 
+void SegmentDisplay::init()
+{
+
+  begin();
+  clearAll();
+  setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS);
+  enabled = true;
+}
+
 void SegmentDisplay::formatOutputText(unsigned long b)
 {
   // Serial.print("format: ");

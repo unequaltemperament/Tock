@@ -4,7 +4,7 @@
 int8_t sensorDeltas[8] = {};
 uint8_t touched = 0;
 cppQueue buttonQueue(sizeof(uint8_t), 6);
-
+bool sensorsEnabled = false;
 void initSensors()
 {
 
@@ -39,6 +39,7 @@ void initSensors()
   }
 
   debugln("CAP1188 found!");
+  sensorsEnabled = true;
 
   // debug("repeat rate enable: ");
   // debugln(cap.readRegister(repeat_rate_enable_register));
@@ -79,20 +80,18 @@ void getSensorInput()
   touchedPrev = touched;
 };
 
-bool processButtonQueue(cppQueue& pushTo)
+bool processButtonQueue(cppQueue &pushTo)
 {
   if (buttonQueue.isEmpty())
   {
     return false;
   }
 
-while(!buttonQueue.isEmpty())
+  while (!buttonQueue.isEmpty())
   {
     uint8_t button = 0;
     buttonQueue.pop(&button);
-    pushTo.push(&generateTockTimer((TimerStatus)random(2), (buttonMap[button]+1) * 60));
+    pushTo.push(&generateTockTimer((TimerStatus)random(2), (buttonMap[button] + 1) * 60));
   }
   return true;
-  
-  
 };
