@@ -58,10 +58,10 @@ void setup()
   timerQueue.flush(); // here now in case we wrap this in some kind of reset function later
 
   // Force first timer to be a reasonable value
-  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 36));
-  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 36));
-  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 36));
-  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 36));
+  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 6));
+  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 6));
+  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 6));
+  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 6));
   // timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
   // timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
   // timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));

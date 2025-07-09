@@ -37,11 +37,6 @@ void ProgressBar::update(bool forceUpdate = false)
             int fullLEDs = elapsedPercentage * _num_leds;
             double partialLEDPercentage = (elapsedPercentage * _num_leds) - fullLEDs;
 
-            debug("fullLEDs: ");
-            debugln(fullLEDs);
-            debug("partialLEDPercentage: ");
-            debugln(partialLEDPercentage);
-
             // NOTE: this sets the last full LED on every pass
             // Probably not a performance issue, but would rather note it now
 

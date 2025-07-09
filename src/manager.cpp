@@ -20,7 +20,8 @@ void TimerManager::start()
   isRunning = true;
   status = currentTimer.status;
   startedAt = currentMillis;
-  
+  segmentDisplay.updatedAt = currentMillis;
+  progressBar.updatedAt = currentMillis;
   segmentDisplay.forceUpdate();
   progressBar.forceUpdate();
 }
