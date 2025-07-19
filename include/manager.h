@@ -9,6 +9,7 @@
 #include "sensors.h"
 
 extern unsigned long currentMillis;
+extern long TimerColor[4];
 
 class TimerManager
 {
@@ -18,7 +19,7 @@ private:
     Screen &screen;
     cppQueue &queue;
     TockTimer currentTimer;
-    TimerStatus status = TimerStatus::STOPPED;
+
 
     const unsigned long normalUpdateIntervalInMS = 1000;
     const unsigned long expireBlinkIntervalInMS = 420;

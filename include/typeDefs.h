@@ -100,7 +100,14 @@ enum TimerStatus
 
 inline char statusType[][8] = {"stopped","expired", "work", "break"};
 
-inline long TimerColor[] = {0,0xFF0000, 0xD9FF00, 0x2AE600};
+typedef long colorPalette[4];
+
+extern long TimerColor[4];
+
+typedef struct{
+  char palleteName[16];
+  colorPalette pallete;
+} palleteOption;
 
 class TockTimer{
 

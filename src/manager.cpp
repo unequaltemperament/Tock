@@ -18,7 +18,6 @@ void TimerManager::start()
 {
   currentMillis = millis();
   isRunning = true;
-  status = currentTimer.status;
   startedAt = currentMillis;
   segmentDisplay.updatedAt = currentMillis;
   progressBar.updatedAt = currentMillis;
@@ -29,7 +28,7 @@ void TimerManager::start()
 void TimerManager::update()
 {
 
-  switch (status)
+  switch (currentTimer.status)
   {
   case TimerStatus::STOPPED:
     break;
@@ -48,7 +47,6 @@ void TimerManager::update()
       else
       {
         currentTimer.status = TimerStatus::EXPIRE;
-        status = TimerStatus::EXPIRE;
         screen.setMode(TimerStatus::EXPIRE);
         break;
       }

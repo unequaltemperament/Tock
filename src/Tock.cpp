@@ -1,5 +1,7 @@
 #include "debugSettings.h"
 #include "boardConfigs/config.h"
+#include "typeDefs.h"
+#include "menu.h"
 #include <Arduino.h>
 #include <Wire.h>
 #include <cppQueue.h>
@@ -15,7 +17,9 @@ constexpr char QUEUE_MAX_SIZE = 10;
 
 unsigned long currentMillis;
 extern bool sensorsEnabled;
+long TimerColor[4];
 
+prefs userPrefs = prefs();
 cppQueue timerQueue(sizeof(TockTimer), QUEUE_MAX_SIZE);
 ProgressBar progressBar(NUM_LEDS, LED_PIN);
 SegmentDisplay segmentDisplay(NUM_DIGITS, DIGITS_PIN);
@@ -28,7 +32,6 @@ TockTimer generateTockTimer(TimerStatus status = WORK, long initialTimeInSeconds
   return TockTimer{status, initialTimeInSeconds};
 }
 
-// this breaks after a single dequeue, I bet
 int iterateNextInQueue(TockTimer *buf)
 {
   static int idx = 0;
@@ -51,9 +54,11 @@ void setup()
 
   segmentDisplay.init();
   progressBar.init();
-  //screen.enabled = false;
+  // screen.enabled = false;
   screen.init();
   initSensors();
+
+  setPallete(userPrefs, 0);
 
   timerQueue.flush(); // here now in case we wrap this in some kind of reset function later
 
@@ -77,20 +82,20 @@ void setup()
 
   manager.loadNextTimer();
   manager.start();
-  
-  //TODO: Screen update is slow.
-  // on new timer load, we lag about 250ms updating the progressbar, causing a jerky first LED
+
+  // TODO: Screen update is slow.
+  //  on screen redraw, we lag about 250ms updating the progressbar, causing a jerky first LED
   screen.update();
 
   debugln("--------");
   char initBuffer[20];
-  sprintf(initBuffer, "%-13s%s", "Digits",segmentDisplay.enabled? "enabled" : "DISABLED");
+  sprintf(initBuffer, "%-13s%s", "Digits", segmentDisplay.enabled ? "enabled" : "DISABLED");
   debugln(initBuffer);
-  sprintf(initBuffer, "%-13s%s", "ProgressBar",progressBar.enabled? "enabled" : "DISABLED");
+  sprintf(initBuffer, "%-13s%s", "ProgressBar", progressBar.enabled ? "enabled" : "DISABLED");
   debugln(initBuffer);
-  sprintf(initBuffer, "%-13s%s", "Screen",screen.enabled? "enabled" : "DISABLED");
+  sprintf(initBuffer, "%-13s%s", "Screen", screen.enabled ? "enabled" : "DISABLED");
   debugln(initBuffer);
-  sprintf(initBuffer, "%-13s%s", "Sensors",sensorsEnabled? "enabled" : "DISABLED");
+  sprintf(initBuffer, "%-13s%s", "Sensors", sensorsEnabled ? "enabled" : "DISABLED");
   debugln(initBuffer);
   debugln("--------");
 
