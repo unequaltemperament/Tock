@@ -19,7 +19,6 @@ unsigned long currentMillis;
 extern bool sensorsEnabled;
 long TimerColor[4];
 
-prefs userPrefs = prefs();
 cppQueue timerQueue(sizeof(TockTimer), QUEUE_MAX_SIZE);
 ProgressBar progressBar(NUM_LEDS, LED_PIN);
 SegmentDisplay segmentDisplay(NUM_DIGITS, DIGITS_PIN);
@@ -58,13 +57,13 @@ void setup()
   screen.init();
   initSensors();
 
-  setPallete(userPrefs, 0);
+  setPallete(5);
 
   timerQueue.flush(); // here now in case we wrap this in some kind of reset function later
 
   // Force first timer to be a reasonable value
-  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 6));
-  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 6));
+  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 30));
+  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 30));
   timerQueue.push(&generateTockTimer(TimerStatus::WORK, 6));
   timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 6));
   // timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));

@@ -1,10 +1,13 @@
-#include <Arduino.h>
+#include "boardConfigs/config.h"
 #include "sensors.h"
+#include "manager.h"
+#include <Arduino.h>
 
 int8_t sensorDeltas[8] = {};
 uint8_t touched = 0;
 cppQueue buttonQueue(sizeof(uint8_t), 6);
 bool sensorsEnabled = false;
+extern TimerManager manager;
 void initSensors()
 {
 
@@ -91,7 +94,18 @@ bool processButtonQueue(cppQueue &pushTo)
   {
     uint8_t button = 0;
     buttonQueue.pop(&button);
-    pushTo.push(&generateTockTimer((TimerStatus)random(2), (buttonMap[button] + 1) * 60));
+
+    if (button==7){
+      manager.updatePalette();
+    } 
+    else{
+      if(pushTo.isFull()){
+        debugln("Queue is full, no timer added");
+        return false; 
+      }
+    randomSeed(millis());
+    pushTo.push(&generateTockTimer((TimerStatus)random(2, 4), (buttonMap[button] + 1) * 60));
+    }
   }
   return true;
 };

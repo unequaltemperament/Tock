@@ -1,4 +1,5 @@
 #include "manager.h"
+#include <math.h>
 
 bool TimerManager::loadNextTimer()
 {
@@ -58,9 +59,25 @@ void TimerManager::update()
     break;
 
   case TimerStatus::EXPIRE:
-    
+
     segmentDisplay.expireBlink();
     progressBar.expireBlink();
     break;
   }
+};
+
+void TimerManager::updatePalette()
+{
+  randomSeed(millis());
+  int palleteIndex = random(0, 8);
+  int max = sizeof(menuOptions.palletes) / sizeof(menuOptions.palletes[0]);
+  palleteIndex = constrain(palleteIndex, 0, max);
+
+  setPallete(palleteIndex);
+  debug("Palette set to ");
+  debugln(menuOptions.palletes[palleteIndex].palleteName);
+
+  segmentDisplay.reColor(TimerColor[getStatus()]);
+  progressBar.forceUpdate();
+  screen.dirty = true;
 };

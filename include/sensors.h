@@ -2,7 +2,6 @@
 #define SENSOR_HEADER
 
 #include "debugSettings.h"
-#include "boardConfigs/config.h"
 #include "typeDefs.h"
 #include <Adafruit_CAP1188.h>
 #include <cppQueue.h>

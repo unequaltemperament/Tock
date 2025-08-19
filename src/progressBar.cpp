@@ -23,7 +23,7 @@ void ProgressBar::init()
 
 void ProgressBar::update(bool forceUpdate = false)
 {
-    if (manager->getStatus()!=TimerStatus::EXPIRE)
+    if (manager->getStatus() != TimerStatus::EXPIRE)
     {
         if ((currentMillis - updatedAt >= lightIntervalInMs && manager->getRemainingTime() > 0) || forceUpdate)
         {
@@ -37,13 +37,14 @@ void ProgressBar::update(bool forceUpdate = false)
             int fullLEDs = elapsedPercentage * _num_leds;
             double partialLEDPercentage = (elapsedPercentage * _num_leds) - fullLEDs;
 
-            // NOTE: this sets the last full LED on every pass
-            // Probably not a performance issue, but would rather note it now
-
-            // using fullLEDs as an index is off-by-1, -1 is the last actual fullLED and -0 is the current partial LED
+            // using fullLEDs as an index is off-by-1, i-1 is the last actual fullLED and i is the current partial LED
             if (fullLEDs > 0)
             {
-                setPixelColor(getMappedLED(fullLEDs - 1), TimerColor[manager->getStatus()]);
+                for(int i = 0; i < fullLEDs-1; i++)
+                {
+                    setPixelColor(getMappedLED(i), TimerColor[manager->getStatus()]);
+                }
+                //setPixelColor(getMappedLED(fullLEDs - 1), TimerColor[manager->getStatus()]);
             }
 
             if (fullLEDs < _num_leds && partialLEDPercentage > 0)

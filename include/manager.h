@@ -7,9 +7,11 @@
 #include "segmentDisplay.h"
 #include "screen.h"
 #include "sensors.h"
+#include "menu.h"
 
 extern unsigned long currentMillis;
 extern long TimerColor[4];
+extern struct menuOptions menuOptions;
 
 class TimerManager
 {
@@ -19,7 +21,6 @@ private:
     Screen &screen;
     cppQueue &queue;
     TockTimer currentTimer;
-
 
     const unsigned long normalUpdateIntervalInMS = 1000;
     const unsigned long expireBlinkIntervalInMS = 420;
@@ -85,9 +86,12 @@ public:
         return &currentTimer;
     }
 
-    bool inline isQueueEmpty(){
+    bool inline isQueueEmpty()
+    {
         return queue.isEmpty();
     }
+
+    void updatePalette();
 };
 
 #endif

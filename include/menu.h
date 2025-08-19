@@ -1,27 +1,35 @@
 #ifndef MENU_HEADER
 #define MENU_HEADER
 
-
-#include "debugSettings.h"
 #include "typeDefs.h"
 
+struct menuOptions
+{
 
-extern long TimerColor[4];
+    struct brightness
+    {
+        bool autoSet;
+        int value;
+    } brightness;
 
-struct prefs {
-
-    struct brightness {
-        bool autoSet = false;
-        int value = 127;
-    };
-    
-    palleteOption palletes[8] = {
-        {"default",{0,0xFF0000, 0xD9FF00, 0x2AE600}},
-        {"fire",{0xff0000,0xdd3333,0x881111,0xff5353}}
-    };
-    
+    palleteOption palletes[8];
 };
 
-void setPallete(prefs& p, int palleteIndex);
+struct userPrefs
+{
+    struct brightness
+    {
+        bool autoSet;
+        int value;
+    } brightness;
 
-#endif
+    char selectedPalette;
+
+    bool init;
+};
+
+void setPallete(userPrefs &p);
+void setPallete(int palleteIndex);
+void initPrefs();
+
+#endif // header guard
