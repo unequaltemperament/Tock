@@ -27,13 +27,18 @@ void SegmentDisplay::formatOutputText(unsigned long b)
   // Serial.print(b);
   // Serial.print(", ");
   // Serial.println(b/1000);
-  snprintf(digitStringBuffer, _numDigits + 1, "%05lu", b / 1000);
+  snprintf(digitStringBuffer, _numDigits + 1, "% 5lu", b / 1000);
 }
 
 void SegmentDisplay::drawBuffertoDigits(unsigned long b)
 {
   formatOutputText(b);
   setText(digitStringBuffer, 0, _numDigits, TimerColor[manager->getStatus()]);
+}
+
+void SegmentDisplay::drawBuffertoDigits(const char *b)
+{
+  setText(b, 0, _numDigits, TimerColor[manager->getStatus()]);
 }
 
 void SegmentDisplay::update(bool forceUpdate = false)
@@ -64,19 +69,20 @@ void SegmentDisplay::expireBlink()
 {
 
   static unsigned long expireBlinkAt = currentMillis;
+  const char expireZeros[6] = "00000";
 
   //TODO: Yeah but what about when we hit a second expiration?
-  static bool expireLEDBlinkOn = [this]()
+  static bool expireLEDBlinkOn = [this,expireZeros]()
   {
     clearDot(2);
-    drawBuffertoDigits(0);
+    drawBuffertoDigits(expireZeros);
 
     return true;
   }();
   // NOTE: pretty sure we don't need this unless we want to show some kind
   // of custom display on expiration, but for now I think this is a good default
 
-  // const char expireZeros[6] = "00000";
+   
 
   if (currentMillis - expireBlinkAt >= expireBlinkIntervalInMS)
   {
@@ -87,7 +93,7 @@ void SegmentDisplay::expireBlink()
 
       // in case we were doing "10 second hurry up"
       clearDot(2);
-      drawBuffertoDigits(0);
+      drawBuffertoDigits(expireZeros);
     }
     else
     {

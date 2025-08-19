@@ -92,20 +92,40 @@ bool processButtonQueue(cppQueue &pushTo)
 
   while (!buttonQueue.isEmpty())
   {
-    uint8_t button = 0;
+    uint8_t button;
     buttonQueue.pop(&button);
+    switch (button)
+    {
 
-    if (button==7){
+    case 4: // its pomodoro time!
+      pushTo.flush();
+      queueTimer(pushTo, TimerStatus::WORK, 25 * 60);
+      queueTimer(pushTo, TimerStatus::BREAK, 5 * 60);
+      queueTimer(pushTo, TimerStatus::WORK, 25 * 60);
+      queueTimer(pushTo, TimerStatus::BREAK, 5 * 60);
+      queueTimer(pushTo, TimerStatus::WORK, 25 * 60);
+      queueTimer(pushTo, TimerStatus::BREAK, 5 * 60);
+      queueTimer(pushTo, TimerStatus::WORK, 25 * 60);
+      queueTimer(pushTo, TimerStatus::BREAK, 5 * 60);
+      queueTimer(pushTo, TimerStatus::BREAK, 25 * 60);
+      manager.loadNextTimer();
+      manager.start();
+      break;
+    case 7:
       manager.updatePalette();
-    } 
-    else{
-      if(pushTo.isFull()){
+      break;
+
+    default:
+      if (pushTo.isFull())
+      {
         debugln("Queue is full, no timer added");
-        return false; 
+        return false;
       }
-    randomSeed(millis());
-    pushTo.push(&generateTockTimer((TimerStatus)random(2, 4), (buttonMap[button] + 1) * 60));
+      randomSeed(millis());
+      queueTimer(pushTo, (TimerStatus)random(2, 4), (buttonMap[button] + 1) * 60);
+      break;
     }
-  }
-  return true;
+
+    return true;
+  };
 };

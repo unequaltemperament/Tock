@@ -10,7 +10,8 @@ extern uint8_t touched;
 extern unsigned long currentMillis;
 extern Adafruit_CAP1188 cap;
 extern cppQueue buttonQueue;
-TockTimer generateTockTimer(TimerStatus status = WORK, long initialTimeInSeconds = 3600);
+bool queueTimer(cppQueue &q, TimerStatus status, long initialTimeInSeconds);
+
 inline char buttonMap[] = {1, 0, 4, 3, 2, 7, 6, 5};
 
 void initSensors();

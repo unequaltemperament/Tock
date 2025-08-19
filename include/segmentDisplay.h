@@ -31,6 +31,7 @@ public:
   void formatOutputText(unsigned long b);
 
   void drawBuffertoDigits(unsigned long b);
+  void drawBuffertoDigits(const char *b);
 
   void update(bool forceUpdate = false);
 

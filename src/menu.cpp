@@ -33,6 +33,8 @@ void setPallete(int palleteIndex)
 {
     int x = sizeof(TimerColor) / sizeof(TimerColor[0]);
 
+    uPrefs.selectedPalette = palleteIndex;
+
     for (int i = 0; i < x; i++)
     {
         TimerColor[i] = menuOptions.palletes[palleteIndex].pallete[i];

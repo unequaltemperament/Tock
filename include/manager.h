@@ -12,6 +12,7 @@
 extern unsigned long currentMillis;
 extern long TimerColor[4];
 extern struct menuOptions menuOptions;
+extern struct userPrefs uPrefs;
 
 class TimerManager
 {

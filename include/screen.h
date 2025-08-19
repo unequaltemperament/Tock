@@ -10,9 +10,12 @@
 #define MAX_BACKLIGHT_BRIGHTNESS 127
 #define BOOT_FADE_IN_TIME_MS 2000
 
-class Screen;
+
 class TimerManager;
+
+class Screen;
 typedef void (Screen::*FunctionPointer)();
+
 int iterateNextInQueue(TockTimer *buf);
 
 class Screen : public Adafruit_ST7789
@@ -43,6 +46,10 @@ public:
     
 private:
 
+
+    void displayQueue();
+    void displayElapsed();
+
     enum Mode
     {
         SPLASH,
@@ -56,9 +63,9 @@ private:
     int idx = 0;
 
     FunctionPointer fps[3] = {
-        &drawSplash,
-        &displayQueue,
-        &displayElapsed
+        &Screen::drawSplash,
+        &Screen::displayQueue,
+        &Screen::displayElapsed
     };
 
     // TODO: this is all stuff that should probably be in the Bitmap class
@@ -67,9 +74,6 @@ private:
     void drawHighPixel(uint16_t colorByte);
     void drawLowPixel(uint16_t colorByte);
     void draw4BitBitmap(const Bitmap &bmp);
-
-    void displayQueue();
-    void displayElapsed();
 
     
 

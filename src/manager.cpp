@@ -11,7 +11,6 @@ bool TimerManager::loadNextTimer()
   };
   progressBar.clear();
   progressBar.lightIntervalInMs = currentTimer.initialTimeInMS / (progressBar._num_leds * progressBar.partialSteps);
-  screen.dirty = true;
   return true;
 }
 
@@ -22,8 +21,11 @@ void TimerManager::start()
   startedAt = currentMillis;
   segmentDisplay.updatedAt = currentMillis;
   progressBar.updatedAt = currentMillis;
+  screen.setMode(currentTimer.status);
+  screen.dirty = true;
   segmentDisplay.forceUpdate();
   progressBar.forceUpdate();
+
 }
 
 void TimerManager::update()
@@ -59,19 +61,26 @@ void TimerManager::update()
     break;
 
   case TimerStatus::EXPIRE:
-
+    if(loadNextTimer()){
+      start();}
+    else{
     segmentDisplay.expireBlink();
     progressBar.expireBlink();
+    }
     break;
   }
 };
 
 void TimerManager::updatePalette()
 {
+  int palleteIndex = -1;
+
   randomSeed(millis());
-  int palleteIndex = random(0, 8);
   int max = sizeof(menuOptions.palletes) / sizeof(menuOptions.palletes[0]);
-  palleteIndex = constrain(palleteIndex, 0, max);
+  do{
+  palleteIndex = random(0, max);
+  }
+  while(palleteIndex == uPrefs.selectedPalette);
 
   setPallete(palleteIndex);
   debug("Palette set to ");

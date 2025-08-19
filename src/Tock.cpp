@@ -26,9 +26,12 @@ Screen screen(TFT_CS, TFT_DC, TFT_RST, TFT_LITE);
 Adafruit_CAP1188 cap(CAP_RST);
 TimerManager manager(segmentDisplay, progressBar, screen, timerQueue);
 
-TockTimer generateTockTimer(TimerStatus status = WORK, long initialTimeInSeconds = 3600)
+bool queueTimer(cppQueue &q, TimerStatus status, long initialTimeInSeconds)
 {
-  return TockTimer{status, initialTimeInSeconds};
+  bool result;
+  TockTimer timer(status, initialTimeInSeconds);
+  result = q.push(&timer);
+  return result;
 }
 
 int iterateNextInQueue(TockTimer *buf)
@@ -62,22 +65,16 @@ void setup()
   timerQueue.flush(); // here now in case we wrap this in some kind of reset function later
 
   // Force first timer to be a reasonable value
-  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 30));
-  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 30));
-  timerQueue.push(&generateTockTimer(TimerStatus::WORK, 6));
-  timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 6));
-  // timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
-  // timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
-  // timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
-  // timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
-  // timerQueue.push(&generateTockTimer(TimerStatus::WORK, 4));
-  // timerQueue.push(&generateTockTimer(TimerStatus::BREAK, 4));
-  // dummy testing data
-  // for (int i = 1; i < QUEUE_MAX_SIZE; i++)
-  // {
-  //   TockTimer t = generateTockTimer(static_cast<TimerStatus>((i % 2) + 1), random(300, 1000));
-  //   timerQueue.push(&t);
-  // }
+  // queueTimer(timerQueue,TimerStatus::WORK, 30);
+  // queueTimer(timerQueue,TimerStatus::BREAK, 30);
+  queueTimer(timerQueue, TimerStatus::WORK, 6);
+  queueTimer(timerQueue, TimerStatus::BREAK, 6);
+  // queueTimer(timerQueue,TimerStatus::WORK, 4);
+  // queueTimer(timerQueue,TimerStatus::BREAK, 4);
+  // queueTimer(timerQueue,TimerStatus::WORK, 4);
+  // queueTimer(timerQueue,TimerStatus::BREAK, 4);
+  // queueTimer(timerQueue,TimerStatus::WORK, 4);
+  // queueTimer(timerQueue,TimerStatus::BREAK, 4);
 
   manager.loadNextTimer();
   manager.start();
