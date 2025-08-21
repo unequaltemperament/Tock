@@ -25,7 +25,6 @@ void TimerManager::start()
   screen.dirty = true;
   segmentDisplay.forceUpdate();
   progressBar.forceUpdate();
-
 }
 
 void TimerManager::update()
@@ -49,8 +48,15 @@ void TimerManager::update()
       }
       else
       {
+        // setting both of these to true means that when a timer expires,
+        // the first pass through expireBlink() will toggle it to false.
+        // This means the first visible indicator of expiration is the display going dark.
+        // Set these to false here if they should "snap" to the lit expired state
+        segmentDisplay.expireLEDBlinkOn = true;
+        progressBar.expireLEDBlinkOn = true;
+
         currentTimer.status = TimerStatus::EXPIRE;
-        screen.setMode(TimerStatus::EXPIRE);
+        screen.setMode(currentTimer.status);
         break;
       }
     }
@@ -61,11 +67,14 @@ void TimerManager::update()
     break;
 
   case TimerStatus::EXPIRE:
-    if(loadNextTimer()){
-      start();}
-    else{
-    segmentDisplay.expireBlink();
-    progressBar.expireBlink();
+    if (loadNextTimer())
+    {
+      start();
+    }
+    else
+    {
+      segmentDisplay.expireBlink();
+      progressBar.expireBlink();
     }
     break;
   }
@@ -77,10 +86,10 @@ void TimerManager::updatePalette()
 
   randomSeed(millis());
   int max = sizeof(menuOptions.palletes) / sizeof(menuOptions.palletes[0]);
-  do{
-  palleteIndex = random(0, max);
-  }
-  while(palleteIndex == uPrefs.selectedPalette);
+  do
+  {
+    palleteIndex = random(0, max);
+  } while (palleteIndex == uPrefs.selectedPalette);
 
   setPallete(palleteIndex);
   debug("Palette set to ");

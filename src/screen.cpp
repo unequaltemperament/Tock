@@ -1,5 +1,6 @@
 #include "screen.h"
 #include "manager.h"
+#include "images/images.h"
 #include "strings.h"
 
 Screen::Screen(int8_t cs, int8_t dc, int8_t rst, int8_t lite)
@@ -91,16 +92,14 @@ void Screen::drawSplash()
 
 void Screen::update()
 {
-    if(!enabled)
+    if(!enabled || !dirty)
     {
         return;
     }
 
-    if (dirty)
-    {
-        dirty = false;
-        (this->*fps[mode])();
-    }
+    dirty = false;
+    (this->*fps[mode])();
+
 }
 
 // TODO: should this be attached to the bitmap instead?
@@ -254,14 +253,14 @@ void Screen::displayQueue(){
     print(title);
 
     int cursorY = 30;
-    setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x00);
+    setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), getBG());
     setCursor(15, cursorY);
 
     // TODO: faster to combine these to one call?
     print(statusType[manager->getStatus()]);
     print(" for ");
     print(manager->getCurrentTimer()->initialTimeInMS / 1000);
-    fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, 0x0000);
+    fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, getBG());
 
     TockTimer buffer;
     int result = iterateNextInQueue(&buffer);
@@ -277,28 +276,28 @@ void Screen::displayQueue(){
         {
             long curColor = TimerColor[buffer.status];
             curColor = RGB888toRGB565(curColor);
-            setTextColor(curColor, 0x00);
+            setTextColor(curColor, getBG());
             setCursor(15, cursorY);
             print(statusType[buffer.status]);
             print(" for ");
             print(buffer.initialTimeInMS / 1000);
 
             //blank out the rest of the line
-            fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, 0x00);
+            fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, getBG());
 
             cursorY += 25 - textsize_y;
             result = iterateNextInQueue(&buffer);
         }
     }
     // blank out the rest of the screen, clipping handled automatically
-    fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, 0x00);
+    fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, getBG());
 }
 
 void Screen::displayElapsed(){
         getTextBounds(strings::timeup, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
         setCursor((width() - textBoundW) / 2, (height() / 2 - textBoundH) / 2);
-        setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), 0x00);
-        fillScreen(0x00);
+        setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), getBG());
+        fillScreen(getBG());
         print(strings::timeup);
         return;
 }
@@ -314,6 +313,12 @@ void Screen::setMode(TimerStatus t)
             mode = QUEUE;
         }
         dirty = true;
+    }
+
+    long Screen::getBG(){
+
+        int size = sizeof(TimerColor)/sizeof(TimerColor[0]);
+        return TimerColor[size];
     }
 
 uint16_t Screen::RGB888toRGB565(long color)

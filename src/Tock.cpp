@@ -17,7 +17,7 @@ constexpr char QUEUE_MAX_SIZE = 10;
 
 unsigned long currentMillis;
 extern bool sensorsEnabled;
-long TimerColor[4];
+long TimerColor[5];
 
 cppQueue timerQueue(sizeof(TockTimer), QUEUE_MAX_SIZE);
 ProgressBar progressBar(NUM_LEDS, LED_PIN);

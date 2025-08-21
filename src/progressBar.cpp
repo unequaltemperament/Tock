@@ -5,7 +5,6 @@ ProgressBar::ProgressBar(int num_leds, int led_pin)
     : Adafruit_NeoPixel(num_leds, led_pin, NEO_GRB)
 {
     _num_leds = num_leds;
-    // uint8_t *_pixels = getPixels();
 }
 
 void ProgressBar::setManager(TimerManager *const m)
@@ -37,27 +36,22 @@ void ProgressBar::update(bool forceUpdate = false)
             int fullLEDs = elapsedPercentage * _num_leds;
             double partialLEDPercentage = (elapsedPercentage * _num_leds) - fullLEDs;
 
-
+            long c = TimerColor[manager->getStatus()];
             //NOTE: cannot use fill() because of the way the LEDs are wired
             if (fullLEDs > 0)
             {
                 for(int i = 0; i < fullLEDs; i++)
                 {
-                    setPixelColor(getMappedLED(i), TimerColor[manager->getStatus()]);
+                    setPixelColor(getMappedLED(i), c);
                 }
             }
 
             if (fullLEDs < _num_leds && partialLEDPercentage > 0)
             {
-
-                setPixelColor(getMappedLED(fullLEDs), getDimmedColor(TimerColor[manager->getStatus()], /* 1 - */ partialLEDPercentage));
+                setPixelColor(getMappedLED(fullLEDs), getDimmedColor(c, partialLEDPercentage));
             }
             show();
         }
-    }
-    else
-    {
-        //expireBlink();
     }
 }
 
@@ -69,11 +63,6 @@ void ProgressBar::forceUpdate()
 void ProgressBar::expireBlink()
 {
     static unsigned long expireBlinkAt = currentMillis;
-    static bool expireLEDBlinkOn = [this](){
-        fill(TimerColor[manager->getStatus()], 0, _num_leds);
-        show();
-        return true;
-    } ();
 
     if (currentMillis - expireBlinkAt >= expireBlinkIntervalInMS)
     {

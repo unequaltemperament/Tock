@@ -20,6 +20,7 @@ public:
   unsigned long updatedAt = 0;
   unsigned long lightIntervalInMs = 0;
   const int partialSteps = 128;
+  bool expireLEDBlinkOn = true;
   TimerManager *manager = nullptr;
 
   void update(bool forceUpdate = false);

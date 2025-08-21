@@ -71,26 +71,12 @@ void SegmentDisplay::expireBlink()
   static unsigned long expireBlinkAt = currentMillis;
   const char expireZeros[6] = "00000";
 
-  //TODO: Yeah but what about when we hit a second expiration?
-  static bool expireLEDBlinkOn = [this,expireZeros]()
-  {
-    clearDot(2);
-    drawBuffertoDigits(expireZeros);
-
-    return true;
-  }();
-  // NOTE: pretty sure we don't need this unless we want to show some kind
-  // of custom display on expiration, but for now I think this is a good default
-
-   
-
   if (currentMillis - expireBlinkAt >= expireBlinkIntervalInMS)
   {
     expireLEDBlinkOn = !expireLEDBlinkOn;
     expireBlinkAt = currentMillis;
     if (expireLEDBlinkOn)
     {
-
       // in case we were doing "10 second hurry up"
       clearDot(2);
       drawBuffertoDigits(expireZeros);

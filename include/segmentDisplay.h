@@ -15,10 +15,12 @@ class SegmentDisplay : public RGBDigit
 
 public:
   int _numDigits;
+  bool enabled = false;
   unsigned long updatedAt = 0;
   const unsigned long normalUpdateIntervalInMS = 1000;
   const unsigned long expireBlinkIntervalInMS = 420;
-  bool enabled = false;
+  bool expireLEDBlinkOn = true;
+
   TimerManager *manager = nullptr;
 
   SegmentDisplay(int numDigits, int digitsPin);
