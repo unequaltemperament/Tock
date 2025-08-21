@@ -75,7 +75,7 @@ private:
     void drawLowPixel(uint16_t colorByte);
     void draw4BitBitmap(const Bitmap &bmp);
 
-    
+    long getBG();    
 
     uint16_t RGB888toRGB565(long color);
 };
