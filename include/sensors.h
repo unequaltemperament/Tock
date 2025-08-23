@@ -1,15 +1,11 @@
 #ifndef SENSOR_HEADER
 #define SENSOR_HEADER
 
-#include "debugSettings.h"
 #include "typeDefs.h"
 #include <Adafruit_CAP1188.h>
-#include <cppQueue.h>
 
-extern uint8_t touched;
-extern unsigned long currentMillis;
-extern Adafruit_CAP1188 cap;
-extern cppQueue buttonQueue;
+class cppQueue;
+
 bool queueTimer(cppQueue &q, TimerStatus status, long initialTimeInSeconds);
 
 inline char buttonMap[] = {1, 0, 4, 3, 2, 7, 6, 5};

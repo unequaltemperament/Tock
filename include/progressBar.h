@@ -1,7 +1,6 @@
 #ifndef PROGRESS_HEADER
 #define PROGRESS_HEADER
 
-#include "debugSettings.h"
 #include <Adafruit_NeoPixel.h>
 #include "typeDefs.h"
 

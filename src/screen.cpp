@@ -1,7 +1,11 @@
+#include "debugSettings.h"
 #include "screen.h"
 #include "manager.h"
 #include "images/images.h"
 #include "strings.h"
+
+#define MAX_BACKLIGHT_BRIGHTNESS 127
+#define BOOT_FADE_IN_TIME_MS 2000
 
 Screen::Screen(int8_t cs, int8_t dc, int8_t rst, int8_t lite)
     : Adafruit_ST7789(cs, dc, rst)

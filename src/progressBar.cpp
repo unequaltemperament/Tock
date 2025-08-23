@@ -1,3 +1,4 @@
+#include "debugSettings.h"
 #include "progressBar.h"
 #include "manager.h"
 

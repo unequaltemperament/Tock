@@ -2,10 +2,8 @@
 #define SEGMENT_HEADER
 
 #include "debugSettings.h"
-#include "Arduino.h"
 #include <RGBDigitV2.h>
 #include "typeDefs.h"
-#include "progressBar.h"
 
 class TimerManager;
 extern unsigned long currentMillis;

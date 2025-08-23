@@ -1,15 +1,9 @@
 #ifndef SCREEN_HEADER
 #define SCREEN_HEADER
 
-#include "debugSettings.h"
 #include <Adafruit_ST7789.h>
 #include "typeDefs.h"
 #include "images/images.h"
-
-#define CAPPED_NEOPIXEL_BRIGHTNESS 90
-#define MAX_BACKLIGHT_BRIGHTNESS 127
-#define BOOT_FADE_IN_TIME_MS 2000
-
 
 class TimerManager;
 
@@ -40,13 +34,12 @@ public:
     void enable();
     void disable();
     void init();
-    void drawSplash();
     void update();
     void setMode(TimerStatus t);
     
 private:
 
-
+    void drawSplash();
     void displayQueue();
     void displayElapsed();
 

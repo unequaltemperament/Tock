@@ -1,13 +1,19 @@
 #include "boardConfigs/config.h"
+#include "debugSettings.h"
 #include "sensors.h"
 #include "manager.h"
 #include <Arduino.h>
+
 
 int8_t sensorDeltas[8] = {};
 uint8_t touched = 0;
 cppQueue buttonQueue(sizeof(uint8_t), 6);
 bool sensorsEnabled = false;
 extern TimerManager manager;
+extern Adafruit_CAP1188 cap;
+extern unsigned long currentMillis;
+const unsigned long sensorIntervalInMS = 50;
+
 void initSensors()
 {
 

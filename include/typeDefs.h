@@ -3,10 +3,7 @@
 
 //#include "debugSettings.h"
 
-
-const unsigned long oneSecondInMS = 1000,
-                    sensorIntervalInMS = 50;
-
+const unsigned long oneSecondInMS = 1000;
 
 // capacitive sensor configuration info
 

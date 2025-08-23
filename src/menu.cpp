@@ -2,6 +2,7 @@
 #include "typeDefs.h"
 
 //TODO: find some nice BG colors for palettes
+//
 struct menuOptions menuOptions{
     {false, 127},
     {{"default", {0, 0xFF0000, 0xD9FF00, 0x2AE600,0x00}},

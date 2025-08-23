@@ -3,16 +3,17 @@
 
 #include "typeDefs.h"
 #include <cppQueue.h>
-#include "progressBar.h"
-#include "segmentDisplay.h"
-#include "screen.h"
-#include "sensors.h"
-#include "menu.h"
 
 extern unsigned long currentMillis;
 extern long TimerColor[5];
 extern struct menuOptions menuOptions;
 extern struct userPrefs uPrefs;
+
+constexpr int CAPPED_NEOPIXEL_BRIGHTNESS = 90;
+
+class SegmentDisplay;
+class ProgressBar;
+class Screen;
 
 class TimerManager
 {
@@ -29,18 +30,7 @@ private:
     bool isRunning = false;
 
 public:
-    TimerManager(SegmentDisplay &seg, ProgressBar &prog, Screen &scr, cppQueue &q) : segmentDisplay(seg),
-                                                                                     progressBar(prog),
-                                                                                     screen(scr),
-                                                                                     queue(q)
-
-    {
-
-        segmentDisplay.setManager(this);
-        progressBar.setManager(this);
-        screen.setManager(this);
-        // queue.setManager(this);
-    };
+    TimerManager(SegmentDisplay &seg, ProgressBar &prog, Screen &scr, cppQueue &q);
 
     unsigned long startedAt = 0;
 

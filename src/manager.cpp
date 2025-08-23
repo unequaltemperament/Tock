@@ -1,5 +1,23 @@
 #include "manager.h"
 #include <math.h>
+#include "progressBar.h"
+#include "segmentDisplay.h"
+#include "screen.h"
+#include "sensors.h"
+#include "menu.h"
+
+TimerManager::TimerManager(SegmentDisplay &seg, ProgressBar &prog, Screen &scr, cppQueue &q) : segmentDisplay(seg),
+                                                                                               progressBar(prog),
+                                                                                               screen(scr),
+                                                                                               queue(q)
+
+{
+
+  segmentDisplay.setManager(this);
+  progressBar.setManager(this);
+  screen.setManager(this);
+  // queue.setManager(this);
+};
 
 bool TimerManager::loadNextTimer()
 {
