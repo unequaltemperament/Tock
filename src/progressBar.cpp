@@ -17,7 +17,7 @@ void ProgressBar::init()
 {
   begin(); // INITIALIZE NeoPixel progressBar.updatedAt object (REQUIRED)
   show();  // Turn OFF all pixels ASAP
-  setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS * .25);
+  setBrightness(CAPPED_BAR_BRIGHTNESS);
   enabled = true;
 }
 

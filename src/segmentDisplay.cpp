@@ -17,7 +17,7 @@ void SegmentDisplay::init()
 
   begin();
   clearAll();
-  setBrightness(CAPPED_NEOPIXEL_BRIGHTNESS);
+  setBrightness(CAPPED_7SEG_BRIGHTNESS);
   enabled = true;
 }
 

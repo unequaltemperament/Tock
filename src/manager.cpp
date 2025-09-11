@@ -6,6 +6,12 @@
 #include "sensors.h"
 #include "menu.h"
 
+extern unsigned long currentMillis;
+extern long TimerColor[5];
+extern struct menuOptions menuOptions;
+extern struct userPrefs uPrefs;
+const char ldrIntervalInMS = 250;
+
 TimerManager::TimerManager(SegmentDisplay &seg, ProgressBar &prog, Screen &scr, cppQueue &q) : segmentDisplay(seg),
                                                                                                progressBar(prog),
                                                                                                screen(scr),
@@ -47,6 +53,27 @@ void TimerManager::start()
 
 void TimerManager::update()
 {
+
+  //TODO: this probably looks like a strobe show
+  //Adding some kind of smoothing and hysteresis would probably help
+  static unsigned long previousLdrMillis = 0;
+
+  if (uPrefs.brightness.autoSet && (currentMillis - previousLdrMillis >= ldrIntervalInMS))
+  {
+    previousLdrMillis = currentMillis;
+    
+    segmentDisplay.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_7SEG_BRIGHTNESS));
+    progressBar.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_BAR_BRIGHTNESS));
+
+    segmentDisplay.show();
+    progressBar.show();
+
+
+    screen.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_BACKLIGHT_BRIGHTNESS));    
+  }
+
+
+
 
   switch (currentTimer.status)
   {

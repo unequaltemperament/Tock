@@ -4,12 +4,9 @@
 #include "typeDefs.h"
 #include <cppQueue.h>
 
-extern unsigned long currentMillis;
-extern long TimerColor[5];
-extern struct menuOptions menuOptions;
-extern struct userPrefs uPrefs;
-
-constexpr int CAPPED_NEOPIXEL_BRIGHTNESS = 90;
+constexpr int CAPPED_7SEG_BRIGHTNESS = 90;
+constexpr int CAPPED_BAR_BRIGHTNESS = 20 * .25;
+constexpr int CAPPED_BACKLIGHT_BRIGHTNESS = 127;
 
 class SegmentDisplay;
 class ProgressBar;

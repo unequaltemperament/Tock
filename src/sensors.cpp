@@ -4,7 +4,6 @@
 #include "manager.h"
 #include <Arduino.h>
 
-
 int8_t sensorDeltas[8] = {};
 uint8_t touched = 0;
 cppQueue buttonQueue(sizeof(uint8_t), 6);
@@ -12,7 +11,7 @@ bool sensorsEnabled = false;
 extern TimerManager manager;
 extern Adafruit_CAP1188 cap;
 extern unsigned long currentMillis;
-const unsigned long sensorIntervalInMS = 50;
+const char sensorIntervalInMS = 50;
 
 void initSensors()
 {
@@ -60,6 +59,16 @@ void initSensors()
   // debugln(cap.readRegister(sensor_input_config_2_register));
   // debug("config 2: ");
   // debugln(cap.readRegister(config_2_register));
+}
+
+
+//range 0-1023
+int getAmbientBrightness()
+{
+  
+    //TODO: process raw value into something useful
+
+    return analogRead(LDR_PIN);
 }
 
 void getSensorInput()

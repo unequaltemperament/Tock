@@ -11,4 +11,6 @@ constexpr char CAP_RST= 2;
 constexpr char LED_PIN= 7;
 constexpr char DIGITS_PIN= 5;
 
+constexpr char LDR_PIN = 12;
+
 #endif //header guard

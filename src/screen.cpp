@@ -4,7 +4,7 @@
 #include "images/images.h"
 #include "strings.h"
 
-#define MAX_BACKLIGHT_BRIGHTNESS 127
+
 #define BOOT_FADE_IN_TIME_MS 2000
 
 Screen::Screen(int8_t cs, int8_t dc, int8_t rst, int8_t lite)
@@ -48,16 +48,16 @@ void Screen::init()
     setRotation(2);
     fillScreen(0xFFFF);
 
-    // for (int i = 0; i < MAX_BACKLIGHT_BRIGHTNESS; i++)
+    // for (int i = 0; i < CAPPED_BACKLIGHT_BRIGHTNESS; i++)
     // {
     //     analogWrite(LITE_PIN, i);
-    //     if (i == MAX_BACKLIGHT_BRIGHTNESS)
+    //     if (i == CAPPED_BACKLIGHT_BRIGHTNESS)
     //     {
     //         break;
     //     }
-    //     delay(BOOT_FADE_IN_TIME_MS / MAX_BACKLIGHT_BRIGHTNESS);
+    //     delay(BOOT_FADE_IN_TIME_MS / CAPPED_BACKLIGHT_BRIGHTNESS);
     // }
-    analogWrite(LITE_PIN, MAX_BACKLIGHT_BRIGHTNESS);
+    analogWrite(LITE_PIN, CAPPED_BACKLIGHT_BRIGHTNESS);
 
     //  drawSplash();
     //  delay(1200);
@@ -103,8 +103,14 @@ void Screen::update()
 
     dirty = false;
     (this->*fps[mode])();
-
+                
 }
+
+void Screen::setBrightness(int brightness){
+    int b = constrain(brightness, 0, CAPPED_BACKLIGHT_BRIGHTNESS);
+    analogWrite(LITE_PIN, b);
+}
+
 
 // TODO: should this be attached to the bitmap instead?
 // Right now we can only draw one image at a time (which is fine, since we should just

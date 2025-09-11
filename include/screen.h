@@ -35,6 +35,7 @@ public:
     void disable();
     void init();
     void update();
+    void setBrightness(int brightness);
     void setMode(TimerStatus t);
     
 private:

@@ -28,7 +28,7 @@ struct userPrefs
     bool init;
 };
 
-void setPallete(userPrefs &p);
+void setPallete(const userPrefs &p);
 void setPallete(int palleteIndex);
 void initPrefs();
 

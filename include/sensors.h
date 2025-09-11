@@ -12,6 +12,7 @@ inline char buttonMap[] = {1, 0, 4, 3, 2, 7, 6, 5};
 
 void initSensors();
 
+int getAmbientBrightness();
 void getSensorInput();
 
 bool processButtonQueue(cppQueue& pushTo);
