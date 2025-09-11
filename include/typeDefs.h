@@ -15,7 +15,7 @@ enum TimerStatus
 
 inline char statusType[][8] = {"stopped","expired", "work", "break"};
 
-extern long TimerColor[5];
+inline long TimerColor[5];
 
 typedef struct palleteOption {
   char palleteName[16];

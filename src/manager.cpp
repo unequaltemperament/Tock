@@ -10,7 +10,7 @@ extern unsigned long currentMillis;
 extern long TimerColor[5];
 extern struct menuOptions menuOptions;
 extern struct userPrefs uPrefs;
-const char ldrIntervalInMS = 250;
+
 
 TimerManager::TimerManager(SegmentDisplay &seg, ProgressBar &prog, Screen &scr, cppQueue &q) : segmentDisplay(seg),
                                                                                                progressBar(prog),
@@ -71,8 +71,6 @@ void TimerManager::update()
 
     screen.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_BACKLIGHT_BRIGHTNESS));    
   }
-
-
 
 
   switch (currentTimer.status)
