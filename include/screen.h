@@ -1,8 +1,8 @@
 #ifndef SCREEN_HEADER
 #define SCREEN_HEADER
 
-#include <Adafruit_ST7789.h>
 #include "typeDefs.h"
+#include <Adafruit_ST7789.h>
 #include "images/images.h"
 
 class TimerManager;

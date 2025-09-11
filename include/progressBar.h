@@ -1,8 +1,9 @@
 #ifndef PROGRESS_HEADER
 #define PROGRESS_HEADER
 
-#include <Adafruit_NeoPixel.h>
 #include "typeDefs.h"
+#include <Adafruit_NeoPixel.h>
+
 
 struct TockTimer;
 class TimerManager;

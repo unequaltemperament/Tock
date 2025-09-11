@@ -1,7 +1,6 @@
 #include "debugSettings.h"
 #include "boardConfigs/config.h"
-#include "typeDefs.h"
-#include "menu.h"
+#include "typeDefs.h" 
 #include <Arduino.h>
 #include <Wire.h>
 #include <cppQueue.h>
@@ -10,6 +9,7 @@
 #include "segmentDisplay.h"
 #include "screen.h"
 #include "sensors.h"
+#include "menu.h"
 
 constexpr char NUM_LEDS = 36;
 constexpr char NUM_DIGITS = 5;

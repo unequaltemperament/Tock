@@ -2,8 +2,9 @@
 #define SEGMENT_HEADER
 
 #include "debugSettings.h"
-#include <RGBDigitV2.h>
 #include "typeDefs.h"
+#include <RGBDigitV2.h>
+
 
 class TimerManager;
 extern unsigned long currentMillis;
@@ -13,13 +14,13 @@ class SegmentDisplay : public RGBDigit
 
 public:
   int _numDigits;
-  bool enabled = false;
-  unsigned long updatedAt = 0;
-  const unsigned long normalUpdateIntervalInMS = 1000;
-  const unsigned long expireBlinkIntervalInMS = 420;
-  bool expireLEDBlinkOn = true;
+  bool enabled {false};
+  unsigned long updatedAt {};
+  const unsigned long normalUpdateIntervalInMS {1000};
+  const unsigned long expireBlinkIntervalInMS {420};
+  bool expireLEDBlinkOn {true};
 
-  TimerManager *manager = nullptr;
+  TimerManager *manager {nullptr};
 
   SegmentDisplay(int numDigits, int digitsPin);
 

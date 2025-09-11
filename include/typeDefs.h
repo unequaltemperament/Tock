@@ -5,6 +5,46 @@
 
 const unsigned long oneSecondInMS = 1000;
 
+enum TimerStatus
+{
+  STOPPED,
+  EXPIRE,
+  WORK,
+  BREAK
+};
+
+inline char statusType[][8] = {"stopped","expired", "work", "break"};
+
+extern long TimerColor[5];
+
+typedef struct palleteOption {
+  char palleteName[16];
+  long pallete[5];
+} palleteOption;
+
+class TockTimer{
+
+  public:
+  
+  TimerStatus status;
+  long remainingTimeInMS;
+  long initialTimeInMS;
+
+  explicit TockTimer(TimerStatus initStatus = WORK, long initTimeInS = 3600)
+  {
+    status = initStatus;
+    initialTimeInMS = initTimeInS * 1000;
+    remainingTimeInMS = initialTimeInMS;
+  }
+
+
+  double getElapsedPercentageNormalized(){
+    return ((double)(initialTimeInMS - remainingTimeInMS) / initialTimeInMS);
+  }
+
+};
+
+
 // capacitive sensor configuration info
 
 inline int sensitivity_control_register = 0x1F;
@@ -83,50 +123,6 @@ inline int config_2_default = 0x40; // 0b01000000
 //    2: Disable RF Noise filter (default 0)
 //    1: -unused-
 //    0: Disable release interrupts (default 0)
-
-enum TimerStatus
-{
-  STOPPED,
-  EXPIRE,
-  WORK,
-  BREAK
-};
-
-
-
-
-inline char statusType[][8] = {"stopped","expired", "work", "break"};
-
-extern long TimerColor[5];
-
-
-
-typedef struct palleteOption {
-  char palleteName[16];
-  long pallete[5];
-} palleteOption;
-
-class TockTimer{
-
-  public:
-  
-  TimerStatus status;
-  long remainingTimeInMS;
-  long initialTimeInMS;
-
-  explicit TockTimer(TimerStatus initStatus = WORK, long initTimeInS = 3600)
-  {
-    status = initStatus;
-    initialTimeInMS = initTimeInS * 1000;
-    remainingTimeInMS = initialTimeInMS;
-  }
-
-
-  double getElapsedPercentageNormalized(){
-    return ((double)(initialTimeInMS - remainingTimeInMS) / initialTimeInMS);
-  }
-
-};
 
 
 

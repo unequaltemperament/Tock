@@ -103,13 +103,21 @@ int ProgressBar::getMappedLED(int realID)
 uint32_t ProgressBar::getDimmedColor(uint32_t color, float dimPercentage)
 {
 
-    uint32_t r = (color >> 16 & 0xFF);
-    uint32_t g = (color >> 8 & 0xFF);
-    uint32_t b = (color & 0xFF);
+    auto dim = [dimPercentage](uint32_t c){
+        return static_cast<uint32_t>((c & 0xFF) * dimPercentage);
+    };
 
-    r = (uint32_t)r * dimPercentage;
-    g = (uint32_t)g * dimPercentage;
-    b = (uint32_t)b * dimPercentage;
+    return (dim(color >> 16) << 16 | dim(color >> 8) << 8 | dim(color));
 
-    return (r << 16) | (g << 8) | b;
+    // This saves 8 byte over the above
+    // uint32_t r = (color >> 16 & 0xFF);
+    // uint32_t g = (color >> 8 & 0xFF);
+    // uint32_t b = (color & 0xFF);
+
+    
+    // r = static_cast<uint32_t>(r * dimPercentage);
+    // g = static_cast<uint32_t>(g * dimPercentage);
+    // b = static_cast<uint32_t>(b * dimPercentage);
+
+    // return (r << 16) | (g << 8) | b;
 }
