@@ -59,6 +59,9 @@ void initSensors()
   // debugln(cap.readRegister(sensor_input_config_2_register));
   // debug("config 2: ");
   // debugln(cap.readRegister(config_2_register));
+
+
+  
 }
 
 
@@ -114,15 +117,15 @@ bool processButtonQueue(cppQueue &pushTo)
 
     case 4: // its pomodoro time!
       pushTo.flush();
-      queueTimer(pushTo, TimerStatus::WORK, 25 * 60);
-      queueTimer(pushTo, TimerStatus::BREAK, 5 * 60);
-      queueTimer(pushTo, TimerStatus::WORK, 25 * 60);
-      queueTimer(pushTo, TimerStatus::BREAK, 5 * 60);
-      queueTimer(pushTo, TimerStatus::WORK, 25 * 60);
-      queueTimer(pushTo, TimerStatus::BREAK, 5 * 60);
-      queueTimer(pushTo, TimerStatus::WORK, 25 * 60);
-      queueTimer(pushTo, TimerStatus::BREAK, 5 * 60);
-      queueTimer(pushTo, TimerStatus::BREAK, 25 * 60);
+      manager.queueTimer(TimerStatus::WORK, 25 * 60);
+      manager.queueTimer(TimerStatus::BREAK, 5 * 60);
+      manager.queueTimer(TimerStatus::WORK, 25 * 60);
+      manager.queueTimer(TimerStatus::BREAK, 5 * 60);
+      manager.queueTimer(TimerStatus::WORK, 25 * 60);
+      manager.queueTimer(TimerStatus::BREAK, 5 * 60);
+      manager.queueTimer(TimerStatus::WORK, 25 * 60);
+      manager.queueTimer(TimerStatus::BREAK, 5 * 60);
+      manager.queueTimer(TimerStatus::BREAK, 25 * 60);
       manager.loadNextTimer();
       manager.start();
       break;
@@ -137,7 +140,7 @@ bool processButtonQueue(cppQueue &pushTo)
         return false;
       }
       randomSeed(millis());
-      queueTimer(pushTo, (TimerStatus)random(2, 4), (buttonMap[button] + 1) * 60);
+      manager.queueTimer((TimerStatus)random(2, 4), (buttonMap[button] + 1) * 60);
       break;
     }
 

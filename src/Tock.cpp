@@ -25,25 +25,6 @@ Screen screen(TFT_CS, TFT_DC, TFT_RST, TFT_LITE);
 Adafruit_CAP1188 cap(CAP_RST);
 TimerManager manager(segmentDisplay, progressBar, screen, timerQueue);
 
-bool queueTimer(cppQueue &q, TimerStatus status, long initialTimeInSeconds)
-{
-  bool result;
-  TockTimer timer(status, initialTimeInSeconds);
-  result = q.push(&timer);
-  return result;
-}
-
-int iterateNextInQueue(TockTimer *buf)
-{
-  static int idx = 0;
-
-  // result is 0 when idx goes off the end of the queue
-  int result = timerQueue.peekIdx(buf, idx);
-  idx++;
-  idx *= result;
-  return result;
-}
-
 void setup()
 {
   Wire.setTimeout(300);
@@ -64,16 +45,16 @@ void setup()
   timerQueue.flush(); // here now in case we wrap this in some kind of reset function later
 
   // Force first timer to be a reasonable value
-  // queueTimer(timerQueue,TimerStatus::WORK, 30);
-  // queueTimer(timerQueue,TimerStatus::BREAK, 30);
-  queueTimer(timerQueue, TimerStatus::WORK, 6);
-  queueTimer(timerQueue, TimerStatus::BREAK, 6);
-  // queueTimer(timerQueue,TimerStatus::WORK, 4);
-  // queueTimer(timerQueue,TimerStatus::BREAK, 4);
-  // queueTimer(timerQueue,TimerStatus::WORK, 4);
-  // queueTimer(timerQueue,TimerStatus::BREAK, 4);
-  // queueTimer(timerQueue,TimerStatus::WORK, 4);
-  // queueTimer(timerQueue,TimerStatus::BREAK, 4);
+  // manager.queueTimer(TimerStatus::WORK, 30);
+  // manager.queueTimer(TimerStatus::BREAK, 30);
+  manager.queueTimer(TimerStatus::WORK, 6);
+  manager.queueTimer(TimerStatus::BREAK, 6);
+  // manager.queueTimer(TimerStatus::WORK, 4);
+  // manager.queueTimer(TimerStatus::BREAK, 4);
+  // manager.queueTimer(TimerStatus::WORK, 4);
+  // manager.queueTimer(TimerStatus::BREAK, 4);
+  // manager.queueTimer(TimerStatus::WORK, 4);
+  // manager.queueTimer(TimerStatus::BREAK, 4);
 
   manager.loadNextTimer();
   manager.start();

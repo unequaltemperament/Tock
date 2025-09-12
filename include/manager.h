@@ -80,6 +80,9 @@ public:
         return queue.isEmpty();
     }
 
+    bool queueTimer(TimerStatus status, long initialTimeInSeconds);
+    int iterateNextInQueue(TockTimer *buffer);
+
     void updatePalette();
 };
 

@@ -273,7 +273,7 @@ void Screen::displayQueue(){
     fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, getBG());
 
     TockTimer buffer;
-    int result = iterateNextInQueue(&buffer);
+    int result = manager->iterateNextInQueue(&buffer);
     if (result)
     {
         getTextBounds(strings::queued, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
@@ -296,7 +296,7 @@ void Screen::displayQueue(){
             fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, getBG());
 
             cursorY += 25 - textsize_y;
-            result = iterateNextInQueue(&buffer);
+            result = manager->iterateNextInQueue(&buffer);
         }
     }
     // blank out the rest of the screen, clipping handled automatically

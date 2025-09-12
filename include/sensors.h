@@ -4,9 +4,8 @@
 #include "typeDefs.h"
 #include <Adafruit_CAP1188.h>
 
-class cppQueue;
 
-bool queueTimer(cppQueue &q, TimerStatus status, long initialTimeInSeconds);
+class cppQueue;
 
 inline char buttonMap[] = {1, 0, 4, 3, 2, 7, 6, 5};
 

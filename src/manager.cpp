@@ -123,6 +123,25 @@ void TimerManager::update()
   }
 };
 
+bool TimerManager::queueTimer(TimerStatus status, long initialTimeInSeconds)
+{
+  bool result;
+  TockTimer timer(status, initialTimeInSeconds);
+  result = queue.push(&timer);
+  return result;
+}
+
+int TimerManager::iterateNextInQueue(TockTimer *buffer)
+{
+  static int idx = 0;
+
+  // result is 0 when idx goes off the end of the queue
+  int result = queue.peekIdx(buffer, idx);
+  idx++;
+  idx *= result;
+  return result;
+}
+
 void TimerManager::updatePalette()
 {
   int palleteIndex = -1;
