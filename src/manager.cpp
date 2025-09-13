@@ -45,8 +45,12 @@ void TimerManager::start()
   startedAt = currentMillis;
   segmentDisplay.updatedAt = currentMillis;
   progressBar.updatedAt = currentMillis;
-  screen.setMode(currentTimer.status);
-  screen.dirty = true;
+  
+  //might start new timer with menu open
+  if(screen.getMode() != Screen::Mode::MENU){
+    screen.setMode(Screen::Mode::QUEUE);
+  }
+
   segmentDisplay.forceUpdate();
   progressBar.forceUpdate();
 }
@@ -91,15 +95,7 @@ void TimerManager::update()
       }
       else
       {
-        // setting both of these to true means that when a timer expires,
-        // the first pass through expireBlink() will toggle it to false.
-        // This means the first visible indicator of expiration is the display going dark.
-        // Set these to false here if they should "snap" to the lit expired state
-        segmentDisplay.expireLEDBlinkOn = true;
-        progressBar.expireLEDBlinkOn = true;
-
         currentTimer.status = TimerStatus::EXPIRE;
-        screen.setMode(currentTimer.status);
         break;
       }
     }
@@ -116,6 +112,15 @@ void TimerManager::update()
     }
     else
     {
+      screen.setMode(Screen::Mode::EXPIRED);
+
+      // setting both of these to true means that when a timer expires,
+      // the first pass through expireBlink() will toggle it to false.
+      // This means the first visible indicator of expiration is the display going dark.
+      // Set these to false here if they should "snap" to the lit expired state
+      segmentDisplay.expireLEDBlinkOn = true;
+      progressBar.expireLEDBlinkOn = true;
+
       segmentDisplay.expireBlink();
       progressBar.expireBlink();
     }

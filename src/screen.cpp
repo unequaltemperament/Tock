@@ -263,14 +263,14 @@ void Screen::displayQueue(){
     print(title);
 
     int cursorY = 30;
-    setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), getBG());
+    setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), getBGColor());
     setCursor(15, cursorY);
 
     // TODO: faster to combine these to one call?
     print(statusType[manager->getStatus()]);
     print(" for ");
     print(manager->getCurrentTimer()->initialTimeInMS / 1000);
-    fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, getBG());
+    fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, getBGColor());
 
     TockTimer buffer;
     int result = manager->iterateNextInQueue(&buffer);
@@ -286,50 +286,48 @@ void Screen::displayQueue(){
         {
             long curColor = TimerColor[buffer.status];
             curColor = RGB888toRGB565(curColor);
-            setTextColor(curColor, getBG());
+            setTextColor(curColor, getBGColor());
             setCursor(15, cursorY);
             print(statusType[buffer.status]);
             print(" for ");
             print(buffer.initialTimeInMS / 1000);
 
             //blank out the rest of the line
-            fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, getBG());
+            fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, getBGColor());
 
             cursorY += 25 - textsize_y;
             result = manager->iterateNextInQueue(&buffer);
         }
     }
     // blank out the rest of the screen, clipping handled automatically
-    fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, getBG());
+    fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, getBGColor());
 }
 
-void Screen::displayElapsed(){
+void Screen::displayExpired(){
         getTextBounds(strings::timeup, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
         setCursor((width() - textBoundW) / 2, (height() / 2 - textBoundH) / 2);
-        setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), getBG());
-        fillScreen(getBG());
+        setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), getBGColor());
+        fillScreen(getBGColor());
         print(strings::timeup);
         return;
 }
 
-void Screen::setMode(TimerStatus t)
+void Screen::setMode(Mode m)
     {
-        if(t== TimerStatus::EXPIRE)
-        {
-            mode = ELAPSED;
-        }
-        else
-        {
-            mode = QUEUE;
-        }
+        mode = m;
         dirty = true;
     }
 
-    long Screen::getBG(){
+Screen::Mode Screen::getMode()
+{
+    return mode;
+}
 
-        int size = sizeof(TimerColor)/sizeof(TimerColor[0]);
-        return TimerColor[size];
-    }
+long Screen::getBGColor(){
+
+    int size = sizeof(TimerColor)/sizeof(TimerColor[0]);
+    return TimerColor[size];
+}
 
 uint16_t Screen::RGB888toRGB565(long color)
 {
@@ -337,3 +335,5 @@ uint16_t Screen::RGB888toRGB565(long color)
            ((color >> 5) & 0x07e0) | // Green → bits 5–10
            ((color >> 3) & 0x001f);  // Blue  → bits 0–4
 }
+
+void Screen::displayMenu(){};

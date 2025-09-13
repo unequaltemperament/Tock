@@ -37,7 +37,6 @@ class TockTimer{
     remainingTimeInMS = initialTimeInMS;
   }
 
-
   double getElapsedPercentageNormalized(){
     return ((double)(initialTimeInMS - remainingTimeInMS) / initialTimeInMS);
   }
