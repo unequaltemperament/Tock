@@ -4,7 +4,6 @@
 #include "images/images.h"
 #include "strings.h"
 
-
 #define BOOT_FADE_IN_TIME_MS 2000
 
 Screen::Screen(int8_t cs, int8_t dc, int8_t rst, int8_t lite)
@@ -62,7 +61,6 @@ void Screen::init()
     //  drawSplash();
     //  delay(1200);
     mode = QUEUE;
-
 }
 
 void Screen::drawSplash()
@@ -72,11 +70,9 @@ void Screen::drawSplash()
     long now = millis();
 #endif
 
-    // TODO: why does copying this into another variable reduce program size?
-    Bitmap bmp = splashImage;
     // draw at screen center
-    setCursor((width() - bmp.width) / 2, (height() - bmp.height) / 2);
-    draw4BitBitmap(bmp);
+    setCursor((width() - splashImage.width) / 2, (height() - splashImage.height) / 2);
+    draw4BitBitmap(splashImage);
 
 #if DEBUG
     now = millis() - now;
@@ -85,7 +81,7 @@ void Screen::drawSplash()
     sprintf(&doneText[mspad], "ms");
 
     setTextSize(2);
-    getTextBounds(doneText, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+    getTextBounds(doneText);
     setCursor(width() / 2 - (textBoundW / 2), height() - textBoundH - 10);
     setTextColor(0x00);
     print(doneText);
@@ -93,24 +89,22 @@ void Screen::drawSplash()
 #endif
 }
 
-
 void Screen::update()
 {
-    if(!enabled || !dirty)
+    if (!enabled || !dirty)
     {
         return;
     }
 
     dirty = false;
     (this->*fps[mode])();
-                
 }
 
-void Screen::setBrightness(int brightness){
+void Screen::setBrightness(int brightness)
+{
     int b = constrain(brightness, 0, CAPPED_BACKLIGHT_BRIGHTNESS);
     analogWrite(LITE_PIN, b);
 }
-
 
 // TODO: should this be attached to the bitmap instead?
 // Right now we can only draw one image at a time (which is fine, since we should just
@@ -120,38 +114,33 @@ void Screen::setBrightness(int brightness){
 // Attaching to the bitmap lets each image handle its own indexing
 // TODO: also do we need out-of-bounds checking
 // TODO: also also should validate numBytes
-uint16_t Screen::getNextChunk(byte numBytes, const byte *data)
+uint16_t Screen::getChunk(const byte *data, uint16_t& idx, byte numBytes)
 {
     uint16_t ret;
     switch (numBytes)
     {
     case 1:
         ret = pgm_read_byte(data + idx);
-        idx++;
         break;
     case 2:
         ret = pgm_read_word(data + idx);
         // Little-endian, swap the bytes around
         // so our consumer always gets the individual bytes in order
         ret = (ret >> 8) | (ret << 8);
-        idx += 2;
         break;
     }
 
+    idx += numBytes;
     return ret;
 }
 
 // TODO: Can probably accelerate this with some of the drawLine functions
-void Screen::drawPixel(uint16_t color)
+void Screen::drawPixel(uint8_t color)
 {
-
     // TODO: bg color checking (if color != bgcolor)
     if (color != 0x0F)
     {
-        // RGB565
-        color = (color << 1 | color >> 3) << 11 | (color << 2 | color >> 2) << 5 | (color << 1 | color >> 3);
-
-        Adafruit_ST7789::drawPixel(getCursorX(), getCursorY(), color);
+        Adafruit_ST7789::drawPixel(getCursorX(), getCursorY(), gray4_to_rgb565(color));
     }
 
     // Compressed 4-bit bmp doesn't wrap pixels around boundaries, so we can skip that check
@@ -164,14 +153,14 @@ void Screen::drawHighPixel(uint16_t colorByte)
 {
     // get just the high bits & move them to the low 4 bits for 565'ing
     // always sits in the high 4 bits of the low byte
-    uint16_t color = (colorByte & 0xF0) >> 4;
+    uint8_t color = (colorByte & 0xF0) >> 4;
     drawPixel(color);
 }
 
 void Screen::drawLowPixel(uint16_t colorByte)
 {
     // get just the low 4 bits of the low byte
-    uint16_t color = colorByte & 0x0F;
+    uint8_t color = colorByte & 0x0F;
     drawPixel(color);
 }
 
@@ -180,11 +169,11 @@ void Screen::draw4BitBitmap(const Bitmap &bmp)
 
     bool done = false;
 
-    idx = 0;
+    uint16_t idx = 0;
 
     while (!done)
     {
-        uint16_t scanPad = getNextChunk();
+        uint16_t scanPad = getChunk(bmp.data, idx, 2);
 
         if ((scanPad >> 8) == 0)
         {
@@ -204,7 +193,7 @@ void Screen::draw4BitBitmap(const Bitmap &bmp)
             // Delta, following two bytes are horizontal & vertical
             // offsets to next pixel relative to current position
             case 2:
-                scanPad = getNextChunk();
+                scanPad = getChunk(bmp.data, idx, 2);
                 setCursor(getCursorX() + (scanPad >> 8), getCursorY() + chunkLowByte);
                 break;
             default:
@@ -214,14 +203,14 @@ void Screen::draw4BitBitmap(const Bitmap &bmp)
                 const int numIndexes = chunkLowByte;
                 for (int j = 0; j < numIndexes; j += 2)
                 {
-                    scanPad = getNextChunk(1);
+                    scanPad = getChunk(bmp.data, idx, 1);
                     drawHighPixel(scanPad);
                     drawLowPixel(scanPad);
                 }
                 // adjust for word boundary alignment by chewing up padding byte
                 if (numIndexes % 4 > 1)
                 {
-                    getNextChunk(1);
+                    getChunk(bmp.data, idx, 1);
                 }
             }
             }
@@ -250,7 +239,8 @@ void Screen::draw4BitBitmap(const Bitmap &bmp)
     }
 };
 
-void Screen::displayQueue(){
+void Screen::displayQueue()
+{
 
     fillScreen(0x00);
     setTextColor(0xFFFF);
@@ -258,7 +248,7 @@ void Screen::displayQueue(){
 
     char title[] = {"Current:"};
 
-    getTextBounds(title, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+    getTextBounds(title);
     setCursor(120 - (textBoundW / 2), 5);
     print(title);
 
@@ -276,23 +266,22 @@ void Screen::displayQueue(){
     int result = manager->iterateNextInQueue(&buffer);
     if (result)
     {
-        getTextBounds(strings::queued, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+        getTextBounds(strings::queued);
         setTextColor(0xFFFF);
         setCursor(120 - (textBoundW / 2), 70);
         print(strings::queued);
         cursorY = 95;
-        
+
         while (result)
         {
-            long curColor = TimerColor[buffer.status];
-            curColor = RGB888toRGB565(curColor);
+            long curColor = RGB888toRGB565(TimerColor[buffer.status]);
             setTextColor(curColor, getBGColor());
             setCursor(15, cursorY);
             print(statusType[buffer.status]);
             print(" for ");
             print(buffer.initialTimeInMS / 1000);
 
-            //blank out the rest of the line
+            // blank out the rest of the line
             fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, getBGColor());
 
             cursorY += 25 - textsize_y;
@@ -303,29 +292,31 @@ void Screen::displayQueue(){
     fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, getBGColor());
 }
 
-void Screen::displayExpired(){
-        getTextBounds(strings::timeup, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
-        setCursor((width() - textBoundW) / 2, (height() / 2 - textBoundH) / 2);
-        setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), getBGColor());
-        fillScreen(getBGColor());
-        print(strings::timeup);
-        return;
+void Screen::displayExpired()
+{
+    getTextBounds(strings::timeup);
+    setCursor((width() - textBoundW) / 2, (height() / 2 - textBoundH) / 2);
+    setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), getBGColor());
+    fillScreen(getBGColor());
+    print(strings::timeup);
+    return;
 }
 
 void Screen::setMode(Mode m)
-    {
-        mode = m;
-        dirty = true;
-    }
+{
+    mode = m;
+    dirty = true;
+}
 
 Screen::Mode Screen::getMode()
 {
     return mode;
 }
 
-long Screen::getBGColor(){
+long Screen::getBGColor()
+{
 
-    int size = sizeof(TimerColor)/sizeof(TimerColor[0]);
+    int size = sizeof(TimerColor) / sizeof(TimerColor[0]);
     return TimerColor[size];
 }
 
@@ -336,4 +327,17 @@ uint16_t Screen::RGB888toRGB565(long color)
            ((color >> 3) & 0x001f);  // Blue  → bits 0–4
 }
 
-void Screen::displayMenu(){};
+uint16_t  Screen::gray4_to_rgb565(uint8_t g4) {
+    // expand 4-bit to 8-bit: v = g4 * 17  (same as (g4<<4)|g4)
+    uint8_t v = g4 * 17u;
+    uint16_t r5 = (v >> 3) & 0x1F;
+    uint16_t g6 = (v >> 2) & 0x3F;
+    uint16_t b5 = (v >> 3) & 0x1F;
+    return (r5 << 11) | (g6 << 5) | b5;
+    };
+
+void Screen::getTextBounds(const char* str){
+    Adafruit_GFX::getTextBounds(str, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
+};
+
+void Screen::displayMenu() {};

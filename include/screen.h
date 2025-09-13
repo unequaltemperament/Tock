@@ -58,8 +58,6 @@ private:
 
     Mode mode = SPLASH;
 
-    int idx = 0;
-
     FunctionPointer fps[4] = {
         &Screen::drawSplash,
         &Screen::displayQueue,
@@ -68,14 +66,16 @@ private:
     };
 
     // TODO: this is all stuff that should probably be in the Bitmap class
-    uint16_t getNextChunk(byte numBytes = 2, const byte *data = splashImage.data);
-    void drawPixel(uint16_t color);
+    uint16_t getChunk(const byte *data, uint16_t& idx, byte numBytes);
+    void drawPixel(uint8_t color);
     void drawHighPixel(uint16_t colorByte);
     void drawLowPixel(uint16_t colorByte);
     void draw4BitBitmap(const Bitmap &bmp);
 
-    long getBGColor();    
+    long getBGColor();
+    inline void getTextBounds(const char* str);
 
     uint16_t RGB888toRGB565(long color);
+    uint16_t gray4_to_rgb565(uint8_t g4);  
 };
 #endif // header guard
