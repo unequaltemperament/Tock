@@ -30,6 +30,8 @@ struct userPrefs
 
 void setPallete(const userPrefs &p);
 void setPallete(int palleteIndex);
-void initPrefs();
+
+bool initPrefs(userPrefs& prefs);
+bool savePrefs(const userPrefs& prefs);
 
 #endif // header guard

@@ -17,6 +17,8 @@ constexpr char QUEUE_MAX_SIZE = 10;
 
 unsigned long currentMillis;
 extern bool sensorsEnabled;
+extern struct userPrefs uPrefs;
+extern struct menuOptions menuOptions;
 
 cppQueue timerQueue(sizeof(TockTimer), QUEUE_MAX_SIZE);
 ProgressBar progressBar(NUM_LEDS, LED_PIN);
@@ -34,13 +36,12 @@ void setup()
   debugln("--------Everything above this line is garbage on reset--------");
 #endif
 
+  initPrefs(uPrefs);
   segmentDisplay.init();
   progressBar.init();
   // screen.enabled = false;
   screen.init();
   initSensors();
-
-  setPallete(5);
 
   timerQueue.flush(); // here now in case we wrap this in some kind of reset function later
 
@@ -64,7 +65,7 @@ void setup()
   screen.update();
 
   debugln("--------");
-  char initBuffer[20];
+  char initBuffer[32];
   sprintf(initBuffer, "%-13s%s", "Digits", segmentDisplay.enabled ? "enabled" : "DISABLED");
   debugln(initBuffer);
   sprintf(initBuffer, "%-13s%s", "ProgressBar", progressBar.enabled ? "enabled" : "DISABLED");
@@ -72,6 +73,18 @@ void setup()
   sprintf(initBuffer, "%-13s%s", "Screen", screen.enabled ? "enabled" : "DISABLED");
   debugln(initBuffer);
   sprintf(initBuffer, "%-13s%s", "Sensors", sensorsEnabled ? "enabled" : "DISABLED");
+  debugln(initBuffer);
+  sprintf(initBuffer, "%-13s%s%s", "UserPrefs", uPrefs.init ? "loaded" : "NOT LOADED");
+  debugln(initBuffer);
+  if(!uPrefs.init){
+  sprintf(initBuffer, "%-13s", "falling back to defaults");
+  debugln(initBuffer);
+  }
+  sprintf(initBuffer, "%-13s%s", "Autobright", uPrefs.brightness.autoSet ? "on" : "off");
+  debugln(initBuffer);
+  sprintf(initBuffer, "%-13s%i", "Saved brightness", uPrefs.brightness.value);
+  debugln(initBuffer);
+  sprintf(initBuffer, "%-13s%s", menuOptions.palletes[uPrefs.selectedPalette].palleteName, "palette selected");
   debugln(initBuffer);
   debugln("--------");
 

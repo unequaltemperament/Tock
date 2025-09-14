@@ -45,7 +45,8 @@ void Screen::init()
     }
 
     setRotation(2);
-    fillScreen(0xFFFF);
+    setBGColor(0xFFFFFF);
+    fillScreen(getBGColor());
 
     // for (int i = 0; i < CAPPED_BACKLIGHT_BRIGHTNESS; i++)
     // {
@@ -137,10 +138,11 @@ uint16_t Screen::getChunk(const byte *data, uint16_t& idx, byte numBytes)
 // TODO: Can probably accelerate this with some of the drawLine functions
 void Screen::drawPixel(uint8_t color)
 {
-    // TODO: bg color checking (if color != bgcolor)
-    if (color != 0x0F)
+    uint16_t bg565 = rgb888ToRgb565(getBGColor());
+    uint16_t color565 = gray4ToRgb565(color);
+    if (color565 != bg565)
     {
-        Adafruit_ST7789::drawPixel(getCursorX(), getCursorY(), gray4_to_rgb565(color));
+        Adafruit_ST7789::drawPixel(getCursorX(), getCursorY(), gray4ToRgb565(color565));
     }
 
     // Compressed 4-bit bmp doesn't wrap pixels around boundaries, so we can skip that check
@@ -213,6 +215,7 @@ void Screen::draw4BitBitmap(const Bitmap &bmp)
                     getChunk(bmp.data, idx, 1);
                 }
             }
+            break;
             }
         }
 
@@ -246,6 +249,9 @@ void Screen::displayQueue()
     setTextColor(0xFFFF);
     setTextSize(2);
 
+    setCursor(width() - plugImage.width - 10, height() - plugImage.height - 10);
+    draw4BitBitmap(plugImage);
+
     char title[] = {"Current:"};
 
     getTextBounds(title);
@@ -253,7 +259,7 @@ void Screen::displayQueue()
     print(title);
 
     int cursorY = 30;
-    setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), getBGColor());
+    setTextColor(rgb888ToRgb565(TimerColor[manager->getStatus()]), getBGColor());
     setCursor(15, cursorY);
 
     // TODO: faster to combine these to one call?
@@ -274,7 +280,7 @@ void Screen::displayQueue()
 
         while (result)
         {
-            long curColor = RGB888toRGB565(TimerColor[buffer.status]);
+            long curColor = rgb888ToRgb565(TimerColor[buffer.status]);
             setTextColor(curColor, getBGColor());
             setCursor(15, cursorY);
             print(statusType[buffer.status]);
@@ -296,7 +302,7 @@ void Screen::displayExpired()
 {
     getTextBounds(strings::timeup);
     setCursor((width() - textBoundW) / 2, (height() / 2 - textBoundH) / 2);
-    setTextColor(RGB888toRGB565(TimerColor[manager->getStatus()]), getBGColor());
+    setTextColor(rgb888ToRgb565(TimerColor[manager->getStatus()]), getBGColor());
     fillScreen(getBGColor());
     print(strings::timeup);
     return;
@@ -320,14 +326,19 @@ long Screen::getBGColor()
     return TimerColor[size];
 }
 
-uint16_t Screen::RGB888toRGB565(long color)
+void Screen::setBGColor(uint32_t bgColor){
+    int size = sizeof(TimerColor) / sizeof(TimerColor[0]);
+    TimerColor[size] = rgb888ToRgb565(bgColor);
+}
+
+uint16_t Screen::rgb888ToRgb565(unsigned long color)
 {
     return ((color >> 8) & 0xf800) | // Red   → bits 11–15
            ((color >> 5) & 0x07e0) | // Green → bits 5–10
            ((color >> 3) & 0x001f);  // Blue  → bits 0–4
 }
 
-uint16_t  Screen::gray4_to_rgb565(uint8_t g4) {
+uint16_t Screen::gray4ToRgb565(uint8_t g4) {
     // expand 4-bit to 8-bit: v = g4 * 17  (same as (g4<<4)|g4)
     uint8_t v = g4 * 17u;
     uint16_t r5 = (v >> 3) & 0x1F;

@@ -73,9 +73,10 @@ private:
     void draw4BitBitmap(const Bitmap &bmp);
 
     long getBGColor();
+    void setBGColor(uint32_t bgColor);
     inline void getTextBounds(const char* str);
 
-    uint16_t RGB888toRGB565(long color);
-    uint16_t gray4_to_rgb565(uint8_t g4);  
+    uint16_t rgb888ToRgb565(unsigned long color);
+    uint16_t gray4ToRgb565(uint8_t g4);  
 };
 #endif // header guard

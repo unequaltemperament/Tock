@@ -1,5 +1,8 @@
-#include "menu.h"
 #include "typeDefs.h"
+#include "menu.h"
+#include <Arduino.h>
+#include <EEPROM.h>
+
 
 //TODO: find some nice BG colors for palettes
 //
@@ -43,4 +46,31 @@ void setPallete(int palleteIndex)
     };
 };
 
-void initPrefs() {};
+bool initPrefs(userPrefs& prefs) {
+
+    prefs.brightness.autoSet = EEPROM.read(0);                     
+    prefs.brightness.value = word(EEPROM.read(1),EEPROM.read(2));  
+    prefs.selectedPalette = EEPROM.read(3);                        
+    prefs.init = EEPROM.read(4);                                  
+
+    return prefs.init;
+};
+
+bool savePrefs(const userPrefs& prefs){
+    bool success = 1;
+
+    EEPROM.update(0, prefs.brightness.autoSet);
+    EEPROM.update(1, prefs.brightness.value >> 8);
+    EEPROM.update(2, prefs.brightness.value & 0x0F);
+    EEPROM.update(3, prefs.selectedPalette);
+    
+   success =  (prefs.brightness.autoSet == EEPROM.read(0))
+             &(prefs.brightness.value == word(EEPROM.read(1),EEPROM.read(2)))
+             &(prefs.selectedPalette == EEPROM.read(3));
+
+    EEPROM.update(4, success);
+
+    return success;
+
+
+}

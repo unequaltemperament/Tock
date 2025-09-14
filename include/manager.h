@@ -60,7 +60,7 @@ public:
         return currentTimer.status;
     };
 
-    long inline getTimerColor()
+    unsigned long inline getTimerColor()
     {
         return TimerColor[getStatus()];
     }

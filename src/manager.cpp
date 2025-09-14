@@ -7,7 +7,7 @@
 #include "menu.h"
 
 extern unsigned long currentMillis;
-extern long TimerColor[5];
+extern unsigned long TimerColor[5];
 extern struct menuOptions menuOptions;
 extern struct userPrefs uPrefs;
 

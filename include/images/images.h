@@ -18,9 +18,10 @@ struct Bitmap
 };
 
 #include "splash.h"
+#include "power.h"
+
 
 // TODO: future things
-// #include "battery.h"
 // #include "tomato.h"
 
 #endif
