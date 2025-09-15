@@ -49,6 +49,7 @@ void TimerManager::start()
   //might start new timer with menu open
   if(screen.getMode() != Screen::Mode::MENU){
     screen.setMode(Screen::Mode::QUEUE);
+    screen.dirty = true;
   }
 
   segmentDisplay.forceUpdate();
@@ -60,21 +61,21 @@ void TimerManager::update()
 
   //TODO: this probably looks like a strobe show
   //Adding some kind of smoothing and hysteresis would probably help
-  static unsigned long previousLdrMillis = 0;
+  // static unsigned long previousLdrMillis = 0;
 
-  if (uPrefs.brightness.autoSet && (currentMillis - previousLdrMillis >= ldrIntervalInMS))
-  {
-    previousLdrMillis = currentMillis;
+  // if (uPrefs.brightness.autoSet && (currentMillis - previousLdrMillis >= ldrIntervalInMS))
+  // {
+  //   previousLdrMillis = currentMillis;
     
-    segmentDisplay.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_7SEG_BRIGHTNESS));
-    progressBar.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_BAR_BRIGHTNESS));
+  //   segmentDisplay.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_7SEG_BRIGHTNESS));
+  //   progressBar.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_BAR_BRIGHTNESS));
 
-    segmentDisplay.show();
-    progressBar.show();
+  //   segmentDisplay.show();
+  //   progressBar.show();
 
 
-    screen.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_BACKLIGHT_BRIGHTNESS));    
-  }
+  //   screen.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_BACKLIGHT_BRIGHTNESS));    
+  // }
 
 
   switch (currentTimer.status)
@@ -111,15 +112,17 @@ void TimerManager::update()
       start();
     }
     else
-    {
+    { 
+      if (screen.getMode() != Screen::Mode::EXPIRED){
       screen.setMode(Screen::Mode::EXPIRED);
-
       // setting both of these to true means that when a timer expires,
       // the first pass through expireBlink() will toggle it to false.
       // This means the first visible indicator of expiration is the display going dark.
       // Set these to false here if they should "snap" to the lit expired state
       segmentDisplay.expireLEDBlinkOn = true;
       progressBar.expireLEDBlinkOn = true;
+      }
+
 
       segmentDisplay.expireBlink();
       progressBar.expireBlink();
@@ -147,7 +150,7 @@ int TimerManager::iterateNextInQueue(TockTimer *buffer)
   return result;
 }
 
-void TimerManager::updatePalette()
+void TimerManager::switchToRandomPalette()
 {
   int palleteIndex = -1;
 

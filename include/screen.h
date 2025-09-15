@@ -70,9 +70,9 @@ private:
     void drawPixel(uint8_t color);
     void drawHighPixel(uint16_t colorByte);
     void drawLowPixel(uint16_t colorByte);
-    void draw4BitBitmap(const Bitmap &bmp);
+    void draw4BitBitmap(const Bitmap &bmp, int initialX, int initialY);
 
-    long getBGColor();
+    unsigned long getBGColor();
     void setBGColor(uint32_t bgColor);
     inline void getTextBounds(const char* str);
 

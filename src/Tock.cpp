@@ -36,12 +36,14 @@ void setup()
   debugln("--------Everything above this line is garbage on reset--------");
 #endif
 
-  initPrefs(uPrefs);
+  //initPrefs(uPrefs);
   segmentDisplay.init();
   progressBar.init();
   // screen.enabled = false;
   screen.init();
   initSensors();
+
+  setPallete(uPrefs.selectedPalette);
 
   timerQueue.flush(); // here now in case we wrap this in some kind of reset function later
 
@@ -49,7 +51,7 @@ void setup()
   // manager.queueTimer(TimerStatus::WORK, 30);
   // manager.queueTimer(TimerStatus::BREAK, 30);
   manager.queueTimer(TimerStatus::WORK, 6);
-  manager.queueTimer(TimerStatus::BREAK, 6);
+  // manager.queueTimer(TimerStatus::BREAK, 6);
   // manager.queueTimer(TimerStatus::WORK, 4);
   // manager.queueTimer(TimerStatus::BREAK, 4);
   // manager.queueTimer(TimerStatus::WORK, 4);
@@ -59,10 +61,11 @@ void setup()
 
   manager.loadNextTimer();
   manager.start();
-
   // TODO: Screen update is slow.
   //  on screen redraw, we lag about 250ms updating the progressbar, causing a jerky first LED
   screen.update();
+
+
 
   debugln("--------");
   char initBuffer[32];
@@ -74,17 +77,17 @@ void setup()
   debugln(initBuffer);
   sprintf(initBuffer, "%-13s%s", "Sensors", sensorsEnabled ? "enabled" : "DISABLED");
   debugln(initBuffer);
-  sprintf(initBuffer, "%-13s%s%s", "UserPrefs", uPrefs.init ? "loaded" : "NOT LOADED");
+  sprintf(initBuffer, "%-13s%s", "UserPrefs", uPrefs.init ? "loaded" : "NOT LOADED");
   debugln(initBuffer);
   if(!uPrefs.init){
   sprintf(initBuffer, "%-13s", "falling back to defaults");
   debugln(initBuffer);
   }
-  sprintf(initBuffer, "%-13s%s", "Autobright", uPrefs.brightness.autoSet ? "on" : "off");
+  sprintf(initBuffer, "%-13s%s", "AutoBright", uPrefs.brightness.autoSet ? "true" : "false");
   debugln(initBuffer);
-  sprintf(initBuffer, "%-13s%i", "Saved brightness", uPrefs.brightness.value);
+  sprintf(initBuffer, "%-13s%i", "SavedBright", uPrefs.brightness.value);
   debugln(initBuffer);
-  sprintf(initBuffer, "%-13s%s", menuOptions.palletes[uPrefs.selectedPalette].palleteName, "palette selected");
+  sprintf(initBuffer, "%-13s%s", "Palette", menuOptions.palletes[uPrefs.selectedPalette].palleteName);
   debugln(initBuffer);
   debugln("--------");
 
@@ -94,6 +97,7 @@ void setup()
 
 void loop()
 {
+
   currentMillis = millis();
   getSensorInput();
   screen.dirty = processButtonQueue(timerQueue);

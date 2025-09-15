@@ -130,7 +130,7 @@ bool processButtonQueue(cppQueue &pushTo)
       manager.start();
       break;
     case 7:
-      manager.updatePalette();
+      manager.switchToRandomPalette();
       break;
 
     default:

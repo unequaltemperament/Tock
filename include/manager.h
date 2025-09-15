@@ -83,7 +83,7 @@ public:
     bool queueTimer(TimerStatus status, long initialTimeInSeconds);
     int iterateNextInQueue(TockTimer *buffer);
 
-    void updatePalette();
+    void switchToRandomPalette();
 };
 
 #endif

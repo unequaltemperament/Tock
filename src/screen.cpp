@@ -3,8 +3,10 @@
 #include "manager.h"
 #include "images/images.h"
 #include "strings.h"
+#include "menu.h"
 
 #define BOOT_FADE_IN_TIME_MS 2000
+extern struct userPrefs uPrefs;
 
 Screen::Screen(int8_t cs, int8_t dc, int8_t rst, int8_t lite)
     : Adafruit_ST7789(cs, dc, rst)
@@ -46,8 +48,7 @@ void Screen::init()
 
     setRotation(2);
     setBGColor(0xFFFFFF);
-    fillScreen(getBGColor());
-
+    fillScreen(rgb888ToRgb565(getBGColor()));
     // for (int i = 0; i < CAPPED_BACKLIGHT_BRIGHTNESS; i++)
     // {
     //     analogWrite(LITE_PIN, i);
@@ -59,9 +60,10 @@ void Screen::init()
     // }
     analogWrite(LITE_PIN, CAPPED_BACKLIGHT_BRIGHTNESS);
 
-    //  drawSplash();
+    //drawSplash();
     //  delay(1200);
-    mode = QUEUE;
+    setBGColor(0x000000);
+    setMode(QUEUE);
 }
 
 void Screen::drawSplash()
@@ -73,7 +75,7 @@ void Screen::drawSplash()
 
     // draw at screen center
     setCursor((width() - splashImage.width) / 2, (height() - splashImage.height) / 2);
-    draw4BitBitmap(splashImage);
+    draw4BitBitmap(splashImage,getCursorX(), getCursorY());
 
 #if DEBUG
     now = millis() - now;
@@ -138,11 +140,11 @@ uint16_t Screen::getChunk(const byte *data, uint16_t& idx, byte numBytes)
 // TODO: Can probably accelerate this with some of the drawLine functions
 void Screen::drawPixel(uint8_t color)
 {
-    uint16_t bg565 = rgb888ToRgb565(getBGColor());
+    uint16_t bg565 = getBGColor();
     uint16_t color565 = gray4ToRgb565(color);
     if (color565 != bg565)
     {
-        Adafruit_ST7789::drawPixel(getCursorX(), getCursorY(), gray4ToRgb565(color565));
+        Adafruit_ST7789::drawPixel(getCursorX(), getCursorY(), color565 );
     }
 
     // Compressed 4-bit bmp doesn't wrap pixels around boundaries, so we can skip that check
@@ -166,12 +168,14 @@ void Screen::drawLowPixel(uint16_t colorByte)
     drawPixel(color);
 }
 
-void Screen::draw4BitBitmap(const Bitmap &bmp)
+void Screen::draw4BitBitmap(const Bitmap &bmp, int initialX, int initialY)
 {
 
     bool done = false;
 
     uint16_t idx = 0;
+
+    setCursor(initialX, initialY);
 
     while (!done)
     {
@@ -186,7 +190,7 @@ void Screen::draw4BitBitmap(const Bitmap &bmp)
             {
             // EOL, go to start of next line
             case 0:
-                setCursor(width() / 2 - bmp.width / 2, getCursorY() + 1);
+                setCursor(initialX, getCursorY() + 1);
                 break;
             // EOF
             case 1:
@@ -245,12 +249,12 @@ void Screen::draw4BitBitmap(const Bitmap &bmp)
 void Screen::displayQueue()
 {
 
-    fillScreen(0x00);
+    fillScreen(rgb888ToRgb565(getBGColor()));
     setTextColor(0xFFFF);
     setTextSize(2);
 
-    setCursor(width() - plugImage.width - 10, height() - plugImage.height - 10);
-    draw4BitBitmap(plugImage);
+    setCursor(width() - plugImage.width - 5, 5);
+    draw4BitBitmap(plugImage,getCursorX(), getCursorY());
 
     char title[] = {"Current:"};
 
@@ -259,14 +263,14 @@ void Screen::displayQueue()
     print(title);
 
     int cursorY = 30;
-    setTextColor(rgb888ToRgb565(TimerColor[manager->getStatus()]), getBGColor());
+    setTextColor(rgb888ToRgb565(TimerColor[manager->getStatus()]), rgb888ToRgb565(getBGColor()));
     setCursor(15, cursorY);
 
     // TODO: faster to combine these to one call?
     print(statusType[manager->getStatus()]);
     print(" for ");
     print(manager->getCurrentTimer()->initialTimeInMS / 1000);
-    fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, getBGColor());
+    fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, rgb888ToRgb565(getBGColor()));
 
     TockTimer buffer;
     int result = manager->iterateNextInQueue(&buffer);
@@ -281,37 +285,46 @@ void Screen::displayQueue()
         while (result)
         {
             long curColor = rgb888ToRgb565(TimerColor[buffer.status]);
-            setTextColor(curColor, getBGColor());
+            setTextColor(curColor, rgb888ToRgb565(getBGColor()));
             setCursor(15, cursorY);
             print(statusType[buffer.status]);
             print(" for ");
             print(buffer.initialTimeInMS / 1000);
 
             // blank out the rest of the line
-            fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, getBGColor());
+            fillRect(getCursorX(), getCursorY(), width() - getCursorX(), textBoundH, rgb888ToRgb565(getBGColor()));
 
             cursorY += 25 - textsize_y;
             result = manager->iterateNextInQueue(&buffer);
         }
     }
     // blank out the rest of the screen, clipping handled automatically
-    fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, getBGColor());
+    fillRect(0, cursor_y + textBoundH, width(), height() - textBoundH, rgb888ToRgb565(getBGColor()));
+
+        
 }
 
 void Screen::displayExpired()
 {
+    fillScreen(rgb888ToRgb565(getBGColor()));
     getTextBounds(strings::timeup);
     setCursor((width() - textBoundW) / 2, (height() / 2 - textBoundH) / 2);
-    setTextColor(rgb888ToRgb565(TimerColor[manager->getStatus()]), getBGColor());
-    fillScreen(getBGColor());
+    setTextColor(rgb888ToRgb565(TimerColor[manager->getStatus()]), rgb888ToRgb565(getBGColor()));
     print(strings::timeup);
     return;
 }
 
 void Screen::setMode(Mode m)
 {
+    if(m == mode){return;}
+    //janky take on onMenuExit();
+    if(mode == MENU && m!=MENU){
+        savePrefs(uPrefs);
+    }
+
     mode = m;
     dirty = true;
+    
 }
 
 Screen::Mode Screen::getMode()
@@ -319,20 +332,21 @@ Screen::Mode Screen::getMode()
     return mode;
 }
 
-long Screen::getBGColor()
+unsigned long Screen::getBGColor()
 {
 
     int size = sizeof(TimerColor) / sizeof(TimerColor[0]);
-    return TimerColor[size];
+    return TimerColor[size-1];
 }
 
 void Screen::setBGColor(uint32_t bgColor){
     int size = sizeof(TimerColor) / sizeof(TimerColor[0]);
-    TimerColor[size] = rgb888ToRgb565(bgColor);
+    TimerColor[size-1] = bgColor;
 }
 
 uint16_t Screen::rgb888ToRgb565(unsigned long color)
 {
+    debugln(color, HEX);
     return ((color >> 8) & 0xf800) | // Red   → bits 11–15
            ((color >> 5) & 0x07e0) | // Green → bits 5–10
            ((color >> 3) & 0x001f);  // Blue  → bits 0–4
@@ -351,4 +365,31 @@ void Screen::getTextBounds(const char* str){
     Adafruit_GFX::getTextBounds(str, 0, 0, &textBoundX, &textBoundY, &textBoundW, &textBoundH);
 };
 
-void Screen::displayMenu() {};
+void Screen::displayMenu() {
+    const char menuTitle[9] = "Settings";
+    setTextSize(3);
+
+    getTextBounds(menuTitle);
+    setCursor(width() / 2 - textBoundW /2, height () /2 - textBoundH /2 );
+    print(menuTitle);
+
+    setCursor(15, getCursorY() + 25);
+    setTextSize(2);
+
+    print("Automatic Brightness: ");
+    print(uPrefs.brightness.autoSet ? "On" : "Off");
+    setCursor(15, getCursorY() + 25 - textsize_y);
+
+    print("Brightness: ");
+    drawFastHLine(getCursorX()+2,getCursorY(),width()-getCursorX()-4,rgb888ToRgb565(manager->getTimerColor()));
+    
+    int16_t xPos = getCursorX()+2 + (width()-getCursorX()-4)/static_cast<float>(static_cast<float>(uPrefs.brightness.value) / INT8_MAX);
+    drawFastVLine(xPos,getCursorY()-(textsize_y/2),textsize_y,rgb888ToRgb565(manager->getTimerColor()));
+
+
+    
+    
+    
+    
+
+};
