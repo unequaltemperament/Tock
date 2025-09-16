@@ -110,11 +110,6 @@ void Screen::setBrightness(int brightness)
 }
 
 // TODO: should this be attached to the bitmap instead?
-// Right now we can only draw one image at a time (which is fine, since we should just
-// be drawing one start-to-finish, but also our graphics handling is primitive as hell),
-// and technically should specify the image-to-draw in every call, which seems like the perfect
-// reason to move it and remove a parameter.
-// Attaching to the bitmap lets each image handle its own indexing
 // TODO: also do we need out-of-bounds checking
 // TODO: also also should validate numBytes
 uint16_t Screen::getChunk(const byte *data, uint16_t& idx, byte numBytes)
@@ -138,34 +133,34 @@ uint16_t Screen::getChunk(const byte *data, uint16_t& idx, byte numBytes)
 }
 
 // TODO: Can probably accelerate this with some of the drawLine functions
-void Screen::drawPixel(uint8_t color)
+void Screen::drawPixel(uint8_t color,const Bitmap& bmp)
 {
     uint16_t bg565 = getBGColor();
     uint16_t color565 = gray4ToRgb565(color);
     if (color565 != bg565)
     {
+        if(color565 == bmp.bgColor){
+            color565 = rgb888ToRgb565(getBGColor());
+        }
         Adafruit_ST7789::drawPixel(getCursorX(), getCursorY(), color565 );
     }
 
-    // Compressed 4-bit bmp doesn't wrap pixels around boundaries, so we can skip that check
-    // all line advancement should be handled when we hit a 0x00 0x00 in the scan pad
-    // so I thiiiiiiink this really only ever needs to advance x
     setCursor(getCursorX() + 1, getCursorY());
 }
 
-void Screen::drawHighPixel(uint16_t colorByte)
+void Screen::drawHighPixel(uint16_t colorByte, const Bitmap& bmp)
 {
     // get just the high bits & move them to the low 4 bits for 565'ing
     // always sits in the high 4 bits of the low byte
     uint8_t color = (colorByte & 0xF0) >> 4;
-    drawPixel(color);
+    drawPixel(color, bmp);
 }
 
-void Screen::drawLowPixel(uint16_t colorByte)
+void Screen::drawLowPixel(uint16_t colorByte, const Bitmap& bmp)
 {
     // get just the low 4 bits of the low byte
     uint8_t color = colorByte & 0x0F;
-    drawPixel(color);
+    drawPixel(color,bmp);
 }
 
 void Screen::draw4BitBitmap(const Bitmap &bmp, int initialX, int initialY)
@@ -210,8 +205,8 @@ void Screen::draw4BitBitmap(const Bitmap &bmp, int initialX, int initialY)
                 for (int j = 0; j < numIndexes; j += 2)
                 {
                     scanPad = getChunk(bmp.data, idx, 1);
-                    drawHighPixel(scanPad);
-                    drawLowPixel(scanPad);
+                    drawHighPixel(scanPad,bmp);
+                    drawLowPixel(scanPad,bmp);
                 }
                 // adjust for word boundary alignment by chewing up padding byte
                 if (numIndexes % 4 > 1)
@@ -232,14 +227,14 @@ void Screen::draw4BitBitmap(const Bitmap &bmp, int initialX, int initialY)
 
             while (drawIndex < repeatLength)
             {
-                drawHighPixel(scanPad);
+                drawHighPixel(scanPad,bmp);
                 drawIndex++;
                 // odd number of pixels, bail early
                 if (drawIndex == repeatLength)
                 {
                     continue;
                 }
-                drawLowPixel(scanPad);
+                drawLowPixel(scanPad,bmp);
                 drawIndex++;
             }
         }
@@ -253,7 +248,7 @@ void Screen::displayQueue()
     setTextColor(0xFFFF);
     setTextSize(2);
 
-    setCursor(width() - plugImage.width - 5, 5);
+    setCursor(width() - plugImage.width - 10, 10);
     draw4BitBitmap(plugImage,getCursorX(), getCursorY());
 
     char title[] = {"Current:"};
@@ -346,7 +341,6 @@ void Screen::setBGColor(uint32_t bgColor){
 
 uint16_t Screen::rgb888ToRgb565(unsigned long color)
 {
-    debugln(color, HEX);
     return ((color >> 8) & 0xf800) | // Red   → bits 11–15
            ((color >> 5) & 0x07e0) | // Green → bits 5–10
            ((color >> 3) & 0x001f);  // Blue  → bits 0–4

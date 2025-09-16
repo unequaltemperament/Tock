@@ -51,7 +51,7 @@ void setup()
   // manager.queueTimer(TimerStatus::WORK, 30);
   // manager.queueTimer(TimerStatus::BREAK, 30);
   manager.queueTimer(TimerStatus::WORK, 6);
-  // manager.queueTimer(TimerStatus::BREAK, 6);
+  manager.queueTimer(TimerStatus::BREAK, 6);
   // manager.queueTimer(TimerStatus::WORK, 4);
   // manager.queueTimer(TimerStatus::BREAK, 4);
   // manager.queueTimer(TimerStatus::WORK, 4);
@@ -66,7 +66,7 @@ void setup()
   screen.update();
 
 
-
+#if DEBUG
   debugln("--------");
   char initBuffer[32];
   sprintf(initBuffer, "%-13s%s", "Digits", segmentDisplay.enabled ? "enabled" : "DISABLED");
@@ -93,11 +93,12 @@ void setup()
 
   debug(millis());
   debugln(": End of setup, entering loop");
+
+#endif
 }
 
 void loop()
 {
-
   currentMillis = millis();
   getSensorInput();
   screen.dirty = processButtonQueue(timerQueue);

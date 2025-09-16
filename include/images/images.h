@@ -14,6 +14,7 @@ struct Bitmap
     int width;
     int height;
     int dataLength;
+    uint16_t bgColor;
     const byte *data;
 };
 

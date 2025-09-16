@@ -131,4 +131,5 @@ inline const Bitmap splashImage = {
     106, //width
     40, //height
     1492, //dataLength
+    0xFFFF, //bgColor
     splashImageData};

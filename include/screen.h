@@ -67,9 +67,9 @@ private:
 
     // TODO: this is all stuff that should probably be in the Bitmap class
     uint16_t getChunk(const byte *data, uint16_t& idx, byte numBytes);
-    void drawPixel(uint8_t color);
-    void drawHighPixel(uint16_t colorByte);
-    void drawLowPixel(uint16_t colorByte);
+    void drawPixel(uint8_t color,const Bitmap& bmp);
+    void drawHighPixel(uint16_t colorByte,const Bitmap& bmp);
+    void drawLowPixel(uint16_t colorByte,const Bitmap& bmp);
     void draw4BitBitmap(const Bitmap &bmp, int initialX, int initialY);
 
     unsigned long getBGColor();
