@@ -172,23 +172,26 @@ void TimerManager::autoUpdateBrightness(){
     previousAutoUpdateMillis = currentMillis;
 
     if(fabs(masterBrightness - targetBrightness) > 0.01){
-      debugln("adjusting");
+      //debugln("adjusting");
       locked = true;
       masterBrightness = .15 * targetBrightness + (.85) * masterBrightness;
     }
     else{
-      debugln("stable");
+      //debugln("stable");
       masterBrightness = targetBrightness;
-      locked = false;
+      if(locked){
+        //TODO: also plagued by usual low-level brightness issues in the LEDS
+        screen.setBrightness(static_cast<int>(masterBrightness * CAPPED_BACKLIGHT_BRIGHTNESS));
+        segmentDisplay.setBrightness(static_cast<uint8_t>(masterBrightness * CAPPED_7SEG_BRIGHTNESS));
+        progressBar.setBrightness(static_cast<uint8_t>(masterBrightness * CAPPED_BAR_BRIGHTNESS));
+
+        segmentDisplay.show();
+        progressBar.show();
+        locked = false;
+      }
+      
     }
-
-    //TODO: don't run this every single update
-    //TODO: also plagued by usual low-level brightness issues in the LEDS
-    screen.setBrightness(static_cast<int>(masterBrightness * CAPPED_BACKLIGHT_BRIGHTNESS));
-    segmentDisplay.setBrightness(static_cast<uint8_t>(masterBrightness * CAPPED_7SEG_BRIGHTNESS));
-    progressBar.setBrightness(static_cast<uint8_t>(masterBrightness * CAPPED_BAR_BRIGHTNESS));
-
-    segmentDisplay.show();
-    progressBar.show();
+    
+    
   }
 };
