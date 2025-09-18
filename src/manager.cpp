@@ -59,24 +59,9 @@ void TimerManager::start()
 void TimerManager::update()
 {
 
-  //TODO: this probably looks like a strobe show
-  //Adding some kind of smoothing and hysteresis would probably help
-  // static unsigned long previousLdrMillis = 0;
-
-  // if (uPrefs.brightness.autoSet && (currentMillis - previousLdrMillis >= ldrIntervalInMS))
-  // {
-  //   previousLdrMillis = currentMillis;
-    
-  //   segmentDisplay.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_7SEG_BRIGHTNESS));
-  //   progressBar.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_BAR_BRIGHTNESS));
-
-  //   segmentDisplay.show();
-  //   progressBar.show();
-
-
-  //   screen.setBrightness(map(getAmbientBrightness(), 0, 1023, 0, CAPPED_BACKLIGHT_BRIGHTNESS));    
-  // }
-
+  if(uPrefs.brightness.autoSet){
+    autoUpdateBrightness();
+  }
 
   switch (currentTimer.status)
   {
@@ -168,4 +153,42 @@ void TimerManager::switchToRandomPalette()
   segmentDisplay.reColor(TimerColor[getStatus()]);
   progressBar.forceUpdate();
   screen.dirty = true;
+};
+
+void TimerManager::autoUpdateBrightness(){
+//TODO: this probably looks like a strobe show
+  //Adding some kind of smoothing and hysteresis would probably help
+  static unsigned long previousLdrMillis = 0;
+  static unsigned long previousAutoUpdateMillis = 0;
+  static bool locked = false;
+
+  if (currentMillis - previousLdrMillis >= ldrIntervalInMS && !locked)
+  {
+    previousLdrMillis = currentMillis;
+    targetBrightness = getAmbientBrightness() / 1023.0f;
+        
+  }
+  if (currentMillis - previousAutoUpdateMillis >= 50){
+    previousAutoUpdateMillis = currentMillis;
+
+    if(fabs(masterBrightness - targetBrightness) > 0.01){
+      debugln("adjusting");
+      locked = true;
+      masterBrightness = .15 * targetBrightness + (.85) * masterBrightness;
+    }
+    else{
+      debugln("stable");
+      masterBrightness = targetBrightness;
+      locked = false;
+    }
+
+    //TODO: don't run this every single update
+    //TODO: also plagued by usual low-level brightness issues in the LEDS
+    screen.setBrightness(static_cast<int>(masterBrightness * CAPPED_BACKLIGHT_BRIGHTNESS));
+    segmentDisplay.setBrightness(static_cast<uint8_t>(masterBrightness * CAPPED_7SEG_BRIGHTNESS));
+    progressBar.setBrightness(static_cast<uint8_t>(masterBrightness * CAPPED_BAR_BRIGHTNESS));
+
+    segmentDisplay.show();
+    progressBar.show();
+  }
 };

@@ -16,7 +16,7 @@ struct menuOptions menuOptions{
 };
 
 struct userPrefs uPrefs{
-    {false, 127},
+    {true, 127},
     0,
     false
 };

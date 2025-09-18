@@ -6,7 +6,7 @@
 
 constexpr int CAPPED_7SEG_BRIGHTNESS = 90;
 constexpr int CAPPED_BAR_BRIGHTNESS = CAPPED_7SEG_BRIGHTNESS * .25;
-constexpr int CAPPED_BACKLIGHT_BRIGHTNESS = 127;
+constexpr int CAPPED_BACKLIGHT_BRIGHTNESS = 255;
 
 class SegmentDisplay;
 class ProgressBar;
@@ -23,7 +23,10 @@ private:
 
     const unsigned long normalUpdateIntervalInMS = 1000;
     const unsigned long expireBlinkIntervalInMS = 420;
-    const char ldrIntervalInMS = 250;
+    const unsigned char ldrIntervalInMS = 250;
+    
+    float masterBrightness = .3;
+    float targetBrightness = .3;
 
     bool isRunning = false;
 
@@ -84,6 +87,8 @@ public:
     int iterateNextInQueue(TockTimer *buffer);
 
     void switchToRandomPalette();
+
+    void autoUpdateBrightness();
 };
 
 #endif
